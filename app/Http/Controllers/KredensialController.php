@@ -17,6 +17,10 @@ class KredensialController extends Controller
 
     public function dashboard()
     {
+        if (in_array(auth()->user()->role, ['admin', 'asesor', 'super_admin'])) {
+            return redirect()->route('admin.dashboard');
+        }
+
         $kredensials = auth()->user()->kredensials()->latest()->get();
         $competencyList = \App\Helpers\CompetencyHelper::getList();
         return view('dashboard', compact('kredensials', 'competencyList'));
