@@ -55,5 +55,10 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/users', [App\Http\Controllers\UserController::class, 'index'])->name('admin.users.index');
     Route::post('/users', [App\Http\Controllers\UserController::class, 'store'])->name('admin.users.store');
     Route::put('/users/{id}', [App\Http\Controllers\UserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/users/{id}', [App\Http\Controllers\UserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::delete('/users/{id}', [App\Http\Controllers\AdminController::class, 'destroy'])->name('admin.users.destroy');
+});
+
+// Asesor Routes
+Route::middleware(['auth'])->prefix('asesor')->group(function () {
+    Route::get('/', [App\Http\Controllers\AsesorController::class, 'index'])->name('asesor.dashboard');
 });

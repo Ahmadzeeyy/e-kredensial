@@ -170,6 +170,71 @@
                 </div>
             @endforeach
 
+            <!-- ── DATA PENDUKUNG (PELATIHAN & IKI) ── -->
+            @php $catIndex++; @endphp
+            <div class="acc-item" id="item_{{ $catIndex }}">
+                <div class="acc-header" onclick="toggleAccordion({{ $catIndex }})">
+                    <div class="acc-title">
+                        <div class="acc-no">{{ $catIndex }}</div>
+                        <div class="acc-label">DATA PENDUKUNG (PELATIHAN & IKI)</div>
+                    </div>
+                    <div class="acc-icon">▼</div>
+                </div>
+                <div class="acc-content" style="padding: 24px;">
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="margin-bottom: 12px; font-size: 14px; color: #1e293b;">Riwayat Pelatihan</h4>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                            <thead>
+                                <tr style="background: #f1f5f9;">
+                                    <th style="padding: 10px; border: 1px solid #e2e8f0; text-align: left;">Nama Pelatihan</th>
+                                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Tahun</th>
+                                    <th style="padding: 10px; border: 1px solid #e2e8f0;">JPL</th>
+                                    <th style="padding: 10px; border: 1px solid #e2e8f0;">SKP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php $pelatihan = $kredensial->data_lengkap['pelatihan'] ?? []; @endphp
+                                @forelse($pelatihan as $p)
+                                    <tr>
+                                        <td style="padding: 10px; border: 1px solid #e2e8f0;">{{ $p['nama'] ?? '-' }}</td>
+                                        <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;">{{ $p['tahun'] ?? '-' }}</td>
+                                        <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;">{{ $p['jpl'] ?? '-' }}</td>
+                                        <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;">{{ $p['skp'] ?? '-' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="4" style="padding: 10px; text-align: center; color: #94a3b8;">Tidak ada data pelatihan</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div>
+                        <h4 style="margin-bottom: 12px; font-size: 14px; color: #1e293b;">Indikator Kinerja Individu (IKI)</h4>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                            <thead>
+                                <tr style="background: #f1f5f9;">
+                                    <th style="padding: 10px; border: 1px solid #e2e8f0; text-align: left;">Tahun</th>
+                                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Bulan</th>
+                                    <th style="padding: 10px; border: 1px solid #e2e8f0;">Nilai</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php $iki = $kredensial->data_lengkap['iki'] ?? []; @endphp
+                                @forelse($iki as $i)
+                                    <tr>
+                                        <td style="padding: 10px; border: 1px solid #e2e8f0;">{{ $i['tahun'] ?? '-' }}</td>
+                                        <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;">{{ $i['bulan'] ?? '-' }}</td>
+                                        <td style="padding: 10px; border: 1px solid #e2e8f0; text-align: center;">{{ $i['nilai'] ?? '-' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="3" style="padding: 10px; text-align: center; color: #94a3b8;">Tidak ada data IKI</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             @php $catIndex++; @endphp
             <div class="acc-item" id="item_{{ $catIndex }}">
                 <div class="acc-header" onclick="toggleAccordion({{ $catIndex }})">

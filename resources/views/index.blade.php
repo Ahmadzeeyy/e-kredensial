@@ -1190,9 +1190,9 @@
   <!-- ═══ SECTION 7: REVIEW ═══ -->
   <div class="section" id="sec7">
     <div class="section-header">
-      <div class="section-badge">REVIEW</div>
-      <div class="section-title">Periksa & Unduh</div>
-      <div class="section-desc">Periksa kembali data Anda. File Excel akan di-generate beserta data dokumen yang diunggah.</div>
+      <div class="section-badge">FINAL STEP</div>
+      <div class="section-title">Konfirmasi & Kirim</div>
+      <div class="section-desc">Periksa kembali data Anda. Setelah dikirim, data akan diverifikasi oleh tim Asesor.</div>
     </div>
 
     <div class="card">
@@ -1201,9 +1201,9 @@
     </div>
 
     <div style="text-align:center; margin-top: 32px;">
-      <button class="btn btn-success" id="downloadBtn" onclick="downloadExcel()">
+      <button class="btn btn-success" id="downloadBtn" onclick="submitApplication()">
         <div class="spinner" id="btnSpinner"></div>
-        <span class="btn-text">⬇ Simpan & Unduh Excel</span>
+        <span class="btn-text">🚀 Kirim Pengajuan</span>
       </button>
     </div>
 
@@ -1219,6 +1219,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
+const v = (id) => document.getElementById(id)?.value || "";
 let currentSlot = 'file_ijazah';
 
 function selectFileSlot(id) {
@@ -1291,7 +1292,7 @@ const STEPS = [
   { label: "Umpan Balik" },
   { label: "Identitas Profesi" },
   { label: "Kelengkapan" },
-  { label: "Unduh" },
+  { label: "Kirim" },
 ];
 
 const CONSENT_QUESTIONS = [
@@ -1342,7 +1343,8 @@ function init() {
 
   const today = new Date();
   const opts = { day:'2-digit', month:'long', year:'numeric' };
-  document.getElementById("tanggal").value = today.toLocaleDateString("id-ID", opts);
+  const tglEl = document.getElementById("tanggal");
+  if (tglEl) tglEl.value = today.toLocaleDateString("id-ID", opts);
 }
 
 function buildStepper() {
@@ -1394,13 +1396,24 @@ function nextSection(current) {
 }
 
 function syncProfile() {
-  document.getElementById('prof_nama').value = v('nama_asesi');
-  document.getElementById('prof_tempat_lahir').value = v('ttl').split(',')[0]?.trim() || '';
-  document.getElementById('prof_tgl_lahir').value = v('ttl').split(',')[1]?.trim() || '';
-  document.getElementById('prof_jk').value = document.querySelector('input[name="jk"]:checked')?.value || '';
-  document.getElementById('prof_alamat_ktp').value = v('alamat');
-  document.getElementById('prof_hp1').value = v('no_hp');
-  document.getElementById('prof_email_aktif').value = v('email');
+  const ttl = v('ttl');
+  const ttlParts = ttl.split(',');
+  
+  const elNama = document.getElementById('prof_nama');
+  const elTempat = document.getElementById('prof_tempat_lahir');
+  const elTgl = document.getElementById('prof_tgl_lahir');
+  const elJk = document.getElementById('prof_jk');
+  const elAlamat = document.getElementById('prof_alamat_ktp');
+  const elHp = document.getElementById('prof_hp1');
+  const elEmail = document.getElementById('prof_email_aktif');
+
+  if (elNama) elNama.value = v('nama_asesi');
+  if (elTempat) elTempat.value = ttlParts[0]?.trim() || '';
+  if (elTgl) elTgl.value = ttlParts[1]?.trim() || '';
+  if (elJk) elJk.value = document.querySelector('input[name="jk"]:checked')?.value || '';
+  if (elAlamat) elAlamat.value = v('alamat');
+  if (elHp) elHp.value = v('no_hp');
+  if (elEmail) elEmail.value = v('email');
 }
 
 function addRow(tableId) {
@@ -1463,22 +1476,30 @@ function validateSection(sec) {
     1: ["nama_asesi", "ttl", "alamat", "no_hp", "nama_sekolah", "jurusan", "tahun_lulus", "nama_lembaga", "jabatan"],
     2: ["nama_asessor", "judul_unit", "tanggal", "waktu", "tempat"],
   };
+  
   if (required[sec]) {
     required[sec].forEach(id => {
       const field = document.getElementById(id);
+      if (!field) return; // Skip if field doesn't exist
+      
       const parent = field.closest(".field");
-      if (!field.value.trim()) {
-        parent.classList.add("has-error");
+      if (!field.value || !field.value.trim()) {
+        if (parent) parent.classList.add("has-error");
         ok = false;
       } else {
-        parent.classList.remove("has-error");
+        if (parent) parent.classList.remove("has-error");
       }
     });
   }
+
   if (sec === 1) {
     const jk = document.querySelector('input[name="jk"]:checked');
-    if (!jk) { showToast("Pilih jenis kelamin terlebih dahulu", true); ok = false; }
+    if (!jk) { 
+      showToast("Pilih jenis kelamin terlebih dahulu", true); 
+      ok = false; 
+    }
   }
+
   if (!ok) showToast("Ada kolom wajib yang belum diisi", true);
   return ok;
 }
@@ -1560,115 +1581,79 @@ function buildReview() {
   table.innerHTML = rows.map(([k, val]) => `<tr><td>${k}</td><td>${val}</td></tr>`).join("");
 }
 
-function v(id) {
-  return document.getElementById(id)?.value || "";
-}
-
-async function downloadExcel() {
+async function submitApplication() {
   const btn = document.getElementById("downloadBtn");
-  btn.classList.add("loading");
   btn.disabled = true;
-
-  const fd = new FormData();
-  fd.append("nama_asesi", v("nama_asesi"));
-  fd.append("ttl", v("ttl"));
-  fd.append("jenis_kelamin", document.querySelector('input[name="jk"]:checked')?.value || "");
-  fd.append("kebangsaan", v("kebangsaan"));
-  fd.append("alamat", v("alamat"));
-  fd.append("kode_pos", v("kode_pos"));
-  fd.append("no_hp", v("no_hp"));
-  fd.append("email", v("email"));
-  fd.append("nama_sekolah", v("nama_sekolah"));
-  fd.append("jurusan", v("jurusan"));
-  fd.append("strata", v("strata"));
-  fd.append("tahun_lulus", v("tahun_lulus"));
-  fd.append("nama_lembaga", v("nama_lembaga"));
-  fd.append("jabatan", v("jabatan"));
-  fd.append("alamat_kantor", v("alamat_kantor"));
-  fd.append("no_telp_kantor", v("no_telp_kantor"));
-  fd.append("email_kantor", v("email_kantor"));
-  fd.append("nama_asessor", v("nama_asessor"));
-  fd.append("no_reg_asesor", v("no_reg_asesor"));
-  fd.append("kode_unit", v("kode_unit"));
-  fd.append("judul_unit", v("judul_unit"));
-  fd.append("tanggal", v("tanggal"));
-  fd.append("waktu", v("waktu"));
-  fd.append("tempat", v("tempat"));
-  
-  // Data Profesi Baru
-  fd.append("prof_ijazah_terakhir", v("prof_ijazah_terakhir"));
-  fd.append("prof_no_ijazah", v("prof_no_ijazah"));
-  fd.append("prof_tahun_ijazah", v("prof_tahun_ijazah"));
-  fd.append("prof_institusi", v("prof_institusi"));
-  fd.append("prof_jenis", v("prof_jenis"));
-  fd.append("prof_jenjang", v("prof_jenjang"));
-  fd.append("prof_no_kta", v("prof_no_kta"));
-  fd.append("prof_berlaku_kta", v("prof_berlaku_kta"));
-  fd.append("prof_no_str", v("prof_no_str"));
-  fd.append("prof_berlaku_str", v("prof_berlaku_str"));
-  fd.append("prof_no_sikp", v("prof_no_sikp"));
-  fd.append("prof_berlaku_sikp", v("prof_berlaku_sikp"));
-  fd.append("prof_no_spk", v("prof_no_spk"));
-  fd.append("prof_berlaku_spk", v("prof_berlaku_spk"));
-  fd.append("prof_unit_kerja", v("prof_unit_kerja"));
-  fd.append("prof_masa_kerja", v("prof_masa_kerja"));
-  fd.append("prof_status_pegawai", v("prof_status_pegawai"));
-  fd.append("prof_pelatihan", v("prof_pelatihan"));
-  fd.append("prof_riwayat_iki", v("prof_riwayat_iki"));
-  fd.append("consent", JSON.stringify(consentState.map(x => x !== false)));
-  fd.append("consent_notes", JSON.stringify(consentNotes));
-  fd.append("umpan_balik", JSON.stringify(umpanState.map(x => x !== false)));
-  fd.append("umpan_balik_notes", JSON.stringify(umpanNotes));
-  fd.append("catatan_aspek", v("catatan_aspek"));
-  fd.append("catatan_penolakan", v("catatan_penolakan"));
-  fd.append("catatan_saran", v("catatan_saran"));
-
-  // Step 5 Data
-  fd.append("prof_nip", v("prof_nip"));
-  fd.append("prof_ktp", v("prof_ktp"));
-  fd.append("prof_agama", v("prof_agama"));
-  fd.append("prof_status_kawin", v("prof_status_kawin"));
-  fd.append("prof_telp_rumah", v("prof_telp_rumah"));
-  fd.append("prof_hp2", v("prof_hp2"));
-  fd.append("data_pelatihan", JSON.stringify(getTableData('tablePelatihan')));
-  fd.append("data_iki", JSON.stringify(getTableData('tableIKI')));
-  fd.append("data_asesmen_history", JSON.stringify(getTableData('tableAsesmen')));
-
-  // Add Files
-  ["file_ijazah", "file_transkrip", "file_str", "file_praktik", "file_sertifikat", "file_logbook", "file_form"].forEach(id => {
-    const fileInput = document.getElementById(id);
-    if (fileInput.files.length > 0) {
-      fd.append(id, fileInput.files[0]);
-    }
-  });
+  btn.classList.add("loading");
 
   try {
+    const fd = new FormData();
+
+    // Step 1: Identitas
+    fd.append("nama_asesi", v("nama_asesi"));
+    fd.append("ttl", v("ttl"));
+    fd.append("jenis_kelamin", document.querySelector('input[name="jk"]:checked')?.value || "");
+    fd.append("kebangsaan", v("kebangsaan"));
+    fd.append("alamat", v("alamat"));
+    fd.append("kode_pos", v("kode_pos"));
+    fd.append("no_hp", v("no_hp"));
+    fd.append("email", v("email"));
+    fd.append("nama_sekolah", v("nama_sekolah"));
+    fd.append("jurusan", v("jurusan"));
+    fd.append("strata", v("strata"));
+    fd.append("tahun_lulus", v("tahun_lulus"));
+    fd.append("nama_lembaga", v("nama_lembaga"));
+    fd.append("jabatan", v("jabatan"));
+    fd.append("alamat_kantor", v("alamat_kantor"));
+    fd.append("no_telp_kantor", v("no_telp_kantor"));
+    fd.append("email_kantor", v("email_kantor"));
+
+    // Step 2: Asesmen
+    fd.append("nama_asessor", v("nama_asessor"));
+    fd.append("no_reg_asesor", v("no_reg_asesor"));
+    fd.append("kode_unit", v("kode_unit"));
+    fd.append("judul_unit", v("judul_unit"));
+    fd.append("tanggal", v("tanggal"));
+    fd.append("waktu", v("waktu"));
+    fd.append("tempat", v("tempat"));
+
+    // Kompetensi
+    fd.append("data_kompetensi", JSON.stringify(getCompData()));
+
+    // Consent & Umpan Balik
+    fd.append("consent", JSON.stringify(consentState.map(x => x !== false)));
+    fd.append("umpan_balik", JSON.stringify(umpanState.map(x => x !== false)));
+    fd.append("portofolio", JSON.stringify(portoState));
+
+    // Step 5: Profesi
+    fd.append("prof_unit_kerja", v("prof_unit_kerja"));
+    fd.append("prof_pendidikan", v("prof_ijazah_terakhir"));
+    fd.append("pelatihan", JSON.stringify(getTableData('tablePelatihan')));
+    fd.append("iki", JSON.stringify(getTableData('tableIKI')));
+    fd.append("asesmen_history", JSON.stringify(getTableData('tableAsesmen')));
+
+    // Step 6: Dokumen
+    const fileFields = ['file_ijazah', 'file_transkrip', 'file_str', 'file_praktik', 'file_sertifikat', 'file_logbook', 'file_form'];
+    fileFields.forEach(f => {
+      const input = document.getElementById('input_' + f);
+      if (input && input.files[0]) fd.append(f, input.files[0]);
+    });
+
     const res = await fetch("{{ route('generate') }}", {
       method: "POST",
-      headers: { 
-        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-      },
+      headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
       body: fd,
     });
 
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Gagal generate file");
-    }
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || "Gagal mengirim pengajuan");
 
-    const blob = await res.blob();
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href = url;
-    a.download = `KREDENSIAL_${payload.nama_asesi.replace(/\s+/g,"_")}.xlsx`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    showToast("✅ Pengajuan berhasil dikirim!");
+    setTimeout(() => { window.location.href = "{{ route('dashboard') }}"; }, 1500);
 
-    showToast("✅ File berhasil diunduh!");
   } catch (err) {
     showToast("❌ " + err.message, true);
+    console.error("Submit error:", err);
   } finally {
     btn.classList.remove("loading");
     btn.disabled = false;
