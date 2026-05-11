@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use App\Models\Kredensial;
 
 class KredensialController extends Controller
@@ -44,7 +42,7 @@ class KredensialController extends Controller
 
     public function generate(Request $request)
     {
-        // Handle JSON decoded fields from FormData
+        // Decode JSON fields from FormData
         $consent = json_decode($request->consent, true);
         $umpan = json_decode($request->umpan_balik, true);
         $porto = json_decode($request->portofolio, true);
@@ -53,9 +51,14 @@ class KredensialController extends Controller
         $iki = json_decode($request->iki, true);
         $asesmen_history = json_decode($request->asesmen_history, true);
 
-        // Exclude files and prepare clean data
-        $data = $request->except(['file_ijazah', 'file_transkrip', 'file_str', 'file_praktik', 'file_sertifikat', 'file_logbook', 'file_form']);
+        // Exclude file objects from data (not JSON-serializable)
+        $data = $request->except([
+            'file_ijazah', 'file_transkrip', 'file_str', 
+            'file_praktik', 'file_sertifikat', 'file_logbook', 'file_form',
+            '_token'
+        ]);
         
+        // Override with decoded JSON values
         $data['consent'] = $consent;
         $data['umpan_balik'] = $umpan;
         $data['portofolio'] = $porto;
@@ -64,7 +67,7 @@ class KredensialController extends Controller
         $data['iki'] = $iki;
         $data['asesmen_history'] = $asesmen_history;
 
-        // Save to Database
+        // Create Kredensial record
         $kredensial = Kredensial::create([
             'user_id' => auth()->id(),
             'nama_asesi' => $request->nama_asesi,
@@ -75,6 +78,7 @@ class KredensialController extends Controller
             'data_lengkap' => $data,
             'status' => 'Submitted'
         ]);
+
         // Handle File Uploads
         $filePaths = [];
         $fileFields = ['file_ijazah', 'file_transkrip', 'file_str', 'file_praktik', 'file_sertifikat', 'file_logbook', 'file_form'];
@@ -88,12 +92,6 @@ class KredensialController extends Controller
                 );
                 $filePaths[$field] = $path;
             }
-        }
-
-        if (!empty($filePaths)) {
-            $existingData = $kredensial->data_lengkap;
-            $existingData['file_paths'] = $filePaths;
-            $kredensial->update(['data_lengkap' => $existingData]);
         }
 
         if (!empty($filePaths)) {

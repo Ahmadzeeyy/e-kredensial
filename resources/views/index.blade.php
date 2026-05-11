@@ -1433,17 +1433,21 @@ function addRow(tableId) {
   tbody.appendChild(tr);
 }
 
-function getTableData(tableId, rowSelector = 'tr') {
-    const rows = document.querySelectorAll(`#${tableId} tbody ${rowSelector}`);
+function getTableData(tableId) {
+    const rows = document.querySelectorAll(`#${tableId} tbody tr`);
     return Array.from(rows).map(row => {
       const inputs = row.querySelectorAll('input, select');
       const rowData = {};
       inputs.forEach(input => {
-        const fieldName = input.id.split('_').pop();
-        rowData[fieldName] = input.value;
+        // Inputs use className like "p_nama", "iki_tahun", etc.
+        const cls = input.className.trim();
+        if (cls) {
+          const fieldName = cls.split('_').slice(1).join('_') || cls;
+          rowData[fieldName] = input.value;
+        }
       });
       return rowData;
-    });
+    }).filter(row => Object.values(row).some(v => v.trim() !== ''));
   }
 
   function getCompData() {

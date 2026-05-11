@@ -104,68 +104,72 @@
                         <div class="acc-icon">▼</div>
                     </div>
                     <div class="acc-content">
-                        <table class="acc-table">
-                            <thead>
-                                <tr>
-                                    <th>Kompetensi</th>
-                                    <th style="width: 250px;">Keterangan Asesi</th>
-                                    <th style="width: 180px;">Bukti Relevan</th>
-                                    <th style="width: 80px; text-align: center;">V</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($items as $key => $val)
-                                    @if(is_array($val))
-                                        <tr class="sub-label-row">
-                                            <td colspan="4" style="padding-left: 24px;">{{ $val['label'] }}</td>
-                                        </tr>
-                                        @foreach($val['items'] as $subKey => $subVal)
-                                            <tr>
-                                                <td style="padding-left: 40px; color: #475569;">{{ $subVal }}</td>
-                                                <td>
-                                                    <div style="font-size: 11px; color: #64748b; font-style: italic; background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px dashed #e2e8f0; min-height: 30px;">
+                        <div style="display: flex; flex-direction: column;">
+                            @foreach($items as $key => $val)
+                                @if(is_array($val))
+                                    <div style="background: #f1f5f9; padding: 12px 20px; font-weight: 700; font-size: 12px; color: #475569; text-transform: uppercase;">
+                                        {{ $val['label'] }}
+                                    </div>
+                                    @foreach($val['items'] as $subKey => $subVal)
+                                        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; background: white;">
+                                            <div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">{{ $subVal }}</div>
+                                            
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+                                                <div>
+                                                    <div style="font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 4px; letter-spacing: 0.05em;">KETERANGAN ASESI</div>
+                                                    <div style="font-size: 12px; color: #334155; font-style: italic; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px dashed #cbd5e1; min-height: 36px;">
                                                         {{ $asesiComp[$subKey] ?? '-' }}
                                                     </div>
-                                                </td>
-                                                <td>
-                                                    <select name="ases[bukti_text][{{ $subKey }}]">
-                                                        <option value="">-- Pilih --</option>
+                                                </div>
+                                                <div>
+                                                    <div style="font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 4px; letter-spacing: 0.05em;">BUKTI RELEVAN</div>
+                                                    <select name="ases[bukti_text][{{ $subKey }}]" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; background: white;">
+                                                        <option value="">-- Pilih Bukti --</option>
                                                         <option value="SERKOM" {{ ($savedBukti[$subKey] ?? '') == 'SERKOM' ? 'selected' : '' }}>SERKOM</option>
                                                         <option value="JOBDES" {{ ($savedBukti[$subKey] ?? '') == 'JOBDES' ? 'selected' : '' }}>JOBDES</option>
                                                         <option value="SKET" {{ ($savedBukti[$subKey] ?? '') == 'SKET' ? 'selected' : '' }}>SKET</option>
                                                         <option value="LAIN-LAIN" {{ ($savedBukti[$subKey] ?? '') == 'LAIN-LAIN' ? 'selected' : '' }}>LAIN-LAIN</option>
                                                     </select>
-                                                </td>
-                                                <td style="text-align: center;">
-                                                    <input type="checkbox" name="ases[kompetensi][{{ $subKey }}]" value="1" {{ isset($saved[$subKey]) ? 'checked' : '' }}>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @else
-                                        <tr>
-                                            <td style="padding-left: 24px; color: #475569;">{{ $val }}</td>
-                                            <td>
-                                                <div style="font-size: 11px; color: #64748b; font-style: italic; background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px dashed #e2e8f0; min-height: 30px;">
+                                                </div>
+                                            </div>
+                                            
+                                            <div style="display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 10px 14px; border-radius: 8px; border: 1px solid #e0e7ff; width: fit-content;">
+                                                <input type="checkbox" id="chk_{{ $subKey }}" name="ases[kompetensi][{{ $subKey }}]" value="1" {{ isset($saved[$subKey]) ? 'checked' : '' }} style="width: 16px; height: 16px; cursor: pointer; accent-color: #4f46e5;">
+                                                <label for="chk_{{ $subKey }}" style="font-size: 12px; font-weight: 700; color: #4338ca; cursor: pointer; user-select: none;">Kompeten (V)</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; background: white;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">{{ $val }}</div>
+                                        
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+                                            <div>
+                                                <div style="font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 4px; letter-spacing: 0.05em;">KETERANGAN ASESI</div>
+                                                <div style="font-size: 12px; color: #334155; font-style: italic; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px dashed #cbd5e1; min-height: 36px;">
                                                     {{ $asesiComp[$key] ?? '-' }}
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <select name="ases[bukti_text][{{ $key }}]">
-                                                    <option value="">-- Pilih --</option>
+                                            </div>
+                                            <div>
+                                                <div style="font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 4px; letter-spacing: 0.05em;">BUKTI RELEVAN</div>
+                                                <select name="ases[bukti_text][{{ $key }}]" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; background: white;">
+                                                    <option value="">-- Pilih Bukti --</option>
                                                     <option value="SERKOM" {{ ($savedBukti[$key] ?? '') == 'SERKOM' ? 'selected' : '' }}>SERKOM</option>
                                                     <option value="JOBDES" {{ ($savedBukti[$key] ?? '') == 'JOBDES' ? 'selected' : '' }}>JOBDES</option>
                                                     <option value="SKET" {{ ($savedBukti[$key] ?? '') == 'SKET' ? 'selected' : '' }}>SKET</option>
                                                     <option value="LAIN-LAIN" {{ ($savedBukti[$key] ?? '') == 'LAIN-LAIN' ? 'selected' : '' }}>LAIN-LAIN</option>
                                                 </select>
-                                            </td>
-                                            <td style="text-align: center;">
-                                                <input type="checkbox" name="ases[kompetensi][{{ $key }}]" value="1" {{ isset($saved[$key]) ? 'checked' : '' }}>
-                                            </td>
-                                        </tr>
-                                    @endif
-                                @endforeach
-                            </tbody>
-                        </table>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 10px 14px; border-radius: 8px; border: 1px solid #e0e7ff; width: fit-content;">
+                                            <input type="checkbox" id="chk_{{ $key }}" name="ases[kompetensi][{{ $key }}]" value="1" {{ isset($saved[$key]) ? 'checked' : '' }} style="width: 16px; height: 16px; cursor: pointer; accent-color: #4f46e5;">
+                                            <label for="chk_{{ $key }}" style="font-size: 12px; font-weight: 700; color: #4338ca; cursor: pointer; user-select: none;">Kompeten (V)</label>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             @endforeach
