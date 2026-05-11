@@ -41,12 +41,12 @@
                             <div style="font-size: 12px; color: #64748b; margin-top: 2px;">{{ $k->jabatan }}</div>
                         </td>
                         <td style="padding: 16px 20px; text-align: center;">
-                            <div style="font-weight: 600; color: #475569; font-size: 13px;">{{ $k->created_at->format('d/m/Y') }}</div>
-                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ $k->created_at->format('H:i') }} WIB</div>
+                            <div style="font-weight: 600; color: #475569; font-size: 13px;">{{ $k->created_at->timezone('Asia/Jakarta')->format('d/m/Y') }}</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ $k->created_at->timezone('Asia/Jakarta')->format('H:i') }} WIB</div>
                         </td>
                         <td style="padding: 16px 20px; text-align: center;">
-                            <div style="font-weight: 600; color: #10b981; font-size: 13px;">{{ $k->updated_at->format('d/m/Y') }}</div>
-                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ $k->updated_at->format('H:i') }} WIB</div>
+                            <div style="font-weight: 600; color: #10b981; font-size: 13px;">{{ $k->updated_at->timezone('Asia/Jakarta')->format('d/m/Y') }}</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ $k->updated_at->timezone('Asia/Jakarta')->format('H:i') }} WIB</div>
                         </td>
                         <td style="padding: 16px 20px; text-align: center;">
                             <div style="font-size: 12px; color: #475569;">
@@ -86,3 +86,25 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        if (!$.fn.DataTable.isDataTable('.datatable')) {
+            $('.datatable').DataTable({
+                language: {
+                    search: "Pencarian:",
+                    lengthMenu: "Tampilkan _MENU_ baris",
+                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    paginate: {
+                        first: "Awal",
+                        last: "Akhir",
+                        next: "Selanjutnya",
+                        previous: "Sebelumnya"
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endpush
