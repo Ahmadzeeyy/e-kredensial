@@ -17,26 +17,28 @@
             <h2 style="font-size: 1.125rem; font-weight: 700;">Daftar Seluruh Pengajuan</h2>
         </div>
         <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse;">
+            <table class="datatable" style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-                        <th style="padding: 16px 20px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Asesi</th>
-                        <th style="padding: 16px 20px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Status</th>
-                        <th style="padding: 16px 20px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Berkas</th>
-                        <th style="padding: 16px 20px; text-align: right; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Aksi</th>
+                        <th style="padding: 16px 20px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; width: 180px;">Asesi</th>
+                        <th style="padding: 16px 20px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; width: 150px;">Status</th>
+                        <th style="padding: 16px 20px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; width: 140px;">Berkas</th>
+                        <th style="padding: 16px 20px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; width: 140px;">Update Terakhir</th>
+                        <th style="padding: 16px 20px 16px 60px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Review Formulir</th>
+                        <th style="padding: 16px 20px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; width: 160px;">Aksi Akhir</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($kredensials as $k)
                     <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
-                        <td style="padding: 16px 20px;">
+                        <td style="padding: 16px 20px; text-align: left;">
                             <div style="font-weight: 700; color: #1e293b; font-size: 14px;">{{ $k->nama_asesi }}</div>
                             <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ $k->created_at->format('d/m/Y H:i') }}</div>
                         </td>
-                        <td style="padding: 16px 20px;">
-                            <form action="{{ route('admin.update-status', $k->id) }}" method="POST">
+                        <td style="padding: 16px 20px; text-align: left;">
+                            <form action="{{ route('admin.update-status', $k->id) }}" method="POST" style="display: inline-block;">
                                 @csrf
-                                <select name="status" onchange="this.form.submit()" style="padding: 4px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; border: none; background: {{ $k->status_label['bg'] }}; color: {{ $k->status_label['color'] }}; cursor: pointer; appearance: none; text-align: center;">
+                                <select name="status" onchange="this.form.submit()" style="padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1px solid #e2e8f0; background: {{ $k->status_label['bg'] }}; color: {{ $k->status_label['color'] }}; cursor: pointer; appearance: none; display: inline-block;">
                                     <option value="Submitted" {{ $k->status == 'Submitted' ? 'selected' : '' }}>Menunggu Review</option>
                                     <option value="Under Review" {{ $k->status == 'Under Review' ? 'selected' : '' }}>Sedang Dicek</option>
                                     <option value="Needs Revision" {{ $k->status == 'Needs Revision' ? 'selected' : '' }}>Perlu Revisi</option>
@@ -44,29 +46,50 @@
                                 </select>
                             </form>
                         </td>
-                        <td style="padding: 16px 20px;">
-                            <button onclick="openPreview({{ $k->id }}, '{{ addslashes($k->nama_asesi) }}')" style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <td style="padding: 16px 20px; text-align: left;">
+                            <button onclick="openPreview({{ $k->id }}, '{{ addslashes($k->nama_asesi) }}')" style="background: #fff; border: 1.5px solid #e2e8f0; padding: 8px 14px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #475569; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;" onmouseover="this.style.borderColor='#4F46E5'; this.style.color='#4F46E5'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.color='#475569'">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                 Lihat Berkas
                             </button>
                         </td>
-                        <td style="padding: 16px 20px; text-align: right;">
-                            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                                <a href="{{ route('admin.ases', $k->id) }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: #10B981; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 13px; transition: 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">Nilai F1</a>
-                                <a href="{{ route('admin.form3a', $k->id) }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: #14b8a6; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 13px; transition: 0.2s;" onmouseover="this.style.background='#0d9488'" onmouseout="this.style.background='#14b8a6'">F3A</a>
-                                <a href="{{ route('admin.form3b', $k->id) }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: #0ea5e9; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 13px; transition: 0.2s;" onmouseover="this.style.background='#0284c7'" onmouseout="this.style.background='#0ea5e9'">F3B</a>
-                                <a href="{{ route('admin.form3d', $k->id) }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: #6366f1; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 13px; transition: 0.2s;" onmouseover="this.style.background='#4f46e5'" onmouseout="this.style.background='#6366f1'">F3D</a>
-                                <a href="{{ route('admin.form5', $k->id) }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: #3b82f6; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 13px; transition: 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">F5</a>
-                                <a href="{{ route('admin.form6', $k->id) }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: #8b5cf6; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 13px; transition: 0.2s;" onmouseover="this.style.background='#7c3aed'" onmouseout="this.style.background='#8b5cf6'">F6</a>
-                                <a href="{{ route('admin.form7', $k->id) }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: #f59e0b; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 13px; transition: 0.2s;" onmouseover="this.style.background='#d97706'" onmouseout="this.style.background='#f59e0b'">F7</a>
-                                <a href="{{ route('admin.form9', $k->id) }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: #ec4899; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 13px; transition: 0.2s;" onmouseover="this.style.background='#be185d'" onmouseout="this.style.background='#ec4899'">F9</a>
-                                <a href="{{ route('admin.download', $k->id) }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: #1e293b; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 13px; transition: 0.2s;" onmouseover="this.style.background='#0f172a'" onmouseout="this.style.background='#1e293b'">Unduh</a>
+                        <td style="padding: 16px 20px; text-align: left;">
+                            <div style="font-weight: 600; color: #475569; font-size: 13px;">{{ $k->updated_at->timezone('Asia/Jakarta')->format('d/m/Y') }}</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+                                {{ $k->updated_at->timezone('Asia/Jakarta')->format('H:i') }} WIB
+                                <span style="display: block; color: #6366f1; font-weight: 700; margin-top: 4px; font-size: 10px; text-transform: uppercase;">{{ $k->data_lengkap['last_form_updated'] ?? 'Pendaftaran' }}</span>
+                            </div>
+                        </td>
+                        <td style="padding: 16px 20px 16px 60px; text-align: left;">
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-start; max-width: 320px;">
+                                <a href="{{ route('admin.ases', $k->id) }}" style="padding: 5px 10px; background: #ecfdf5; color: #059669; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 11px; border: 1px solid #10b981;">F1</a>
+                                <a href="{{ route('admin.form3a', $k->id) }}" style="padding: 5px 10px; background: #f0fdfa; color: #0d9488; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 11px; border: 1px solid #14b8a6;">F3A</a>
+                                <a href="{{ route('admin.form3b', $k->id) }}" style="padding: 5px 10px; background: #f0f9ff; color: #0284c7; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 11px; border: 1px solid #0ea5e9;">F3B</a>
+                                <a href="{{ route('admin.form3d', $k->id) }}" style="padding: 5px 10px; background: #eef2ff; color: #4f46e5; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 11px; border: 1px solid #6366f1;">F3D</a>
+                                <a href="{{ route('admin.form5', $k->id) }}" style="padding: 5px 10px; background: #eff6ff; color: #2563eb; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 11px; border: 1px solid #3b82f6;">F5</a>
+                                <a href="{{ route('admin.form6', $k->id) }}" style="padding: 5px 10px; background: #f5f3ff; color: #7c3aed; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 11px; border: 1px solid #8b5cf6;">F6</a>
+                                <a href="{{ route('admin.form7', $k->id) }}" style="padding: 5px 10px; background: #fffbeb; color: #d97706; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 11px; border: 1px solid #f59e0b;">F7</a>
+                                <a href="{{ route('admin.form9', $k->id) }}" style="padding: 5px 10px; background: #fdf2f8; color: #be185d; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 11px; border: 1px solid #ec4899;">F9</a>
+                            </div>
+                        </td>
+                        <td style="padding: 16px 20px; text-align: center;">
+                            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+                                <a href="{{ route('admin.download', $k->id) }}" style="width: 100%; padding: 8px 12px; background: #1e293b; color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 11px; text-align: center; transition: 0.2s;" onmouseover="this.style.background='#0f172a'" onmouseout="this.style.background='#1e293b'">📁 Unduh Rekap</a>
+                                
+                                @if($k->status !== 'Approved')
+                                <form action="{{ route('admin.update-status', $k->id) }}" method="POST" style="width: 100%;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="Approved">
+                                    <button type="submit" style="width: 100%; padding: 8px 12px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);" onmouseover="this.style.background='#059669'; this.style.transform='scale(1.02)'" onmouseout="this.style.background='#10b981'; this.style.transform='scale(1)'" onclick="return confirm('Selesaikan penilaian untuk {{ $k->nama_asesi }}?')">
+                                        ✔️ Selesaikan
+                                    </button>
+                                </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4">
+                        <td colspan="6">
                             <div style="padding: 5rem 2rem; text-align: center; color: #94a3b8;">
                                 <div style="font-size: 4rem; margin-bottom: 1.5rem;">📂</div>
                                 <h3 style="color: #475569;">Belum Ada Pengajuan</h3>

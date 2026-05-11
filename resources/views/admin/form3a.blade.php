@@ -377,8 +377,8 @@
             </div>
 
             <div class="footer">
-                <a href="{{ route('admin.kredensial.index') }}" class="btn btn-secondary">Batal</a>
-                <button type="submit" class="btn btn-primary">Simpan Form 3A</button>
+                <a href="{{ route('admin.kredensial.index') }}" class="btn btn-secondary" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569;">Batal</a>
+                <button type="submit" name="action" value="simpan" class="btn btn-secondary" style="background: #1e293b; color: white; border: none; flex: 1;">💾 Simpan Draft Form 3A</button>
             </div>
         </form>
     </div>

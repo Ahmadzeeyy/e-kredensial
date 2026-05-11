@@ -31,6 +31,9 @@ Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->
 Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/kredensial', [App\Http\Controllers\AdminController::class, 'listKredensial'])->name('admin.kredensial.index');
+    Route::get('/kredensial/approved', [App\Http\Controllers\AdminController::class, 'listApproved'])->name('admin.kredensial.approved');
+    Route::post('/kredensial/cancel/{id}', [App\Http\Controllers\AdminController::class, 'cancelApproved'])->name('admin.kredensial.cancel');
+    Route::get('/kredensial/export-rekap', [App\Http\Controllers\AdminController::class, 'exportRekapitulasi'])->name('admin.export-rekap');
     Route::get('/ases/{id}', [App\Http\Controllers\AdminController::class, 'showAses'])->name('admin.ases');
     Route::post('/ases/{id}', [App\Http\Controllers\AdminController::class, 'storeAses'])->name('admin.ases.store');
     Route::get('/form5/{id}', [App\Http\Controllers\AdminController::class, 'showForm5'])->name('admin.form5');

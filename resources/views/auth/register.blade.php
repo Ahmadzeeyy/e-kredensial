@@ -112,8 +112,8 @@
           </div>
 
           <div class="form-group">
-            <label>Email Aktif</label>
-            <input type="email" name="email" value="{{ old('email') }}" required placeholder="nama@email.com">
+            <label>Username</label>
+            <input type="text" name="username" value="{{ old('username') }}" required placeholder="Pilih username pendek">
           </div>
 
           <div class="form-group">

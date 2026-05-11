@@ -111,8 +111,8 @@
       <form action="{{ route('login') }}" method="POST">
         @csrf
         <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" name="email" value="{{ old('email') }}" required placeholder="nama@email.com" autofocus>
+          <label>Username / Email</label>
+          <input type="text" name="login" value="{{ old('login') }}" required placeholder="Masukkan username atau email..." autofocus>
         </div>
 
         <div class="form-group">

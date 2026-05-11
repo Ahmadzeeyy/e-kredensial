@@ -15,7 +15,12 @@ class AdminController extends Controller
             'total_users' => \App\Models\User::count(),
             'total_admin' => \App\Models\User::where('role', 'admin')->count(),
             'total_asesor' => \App\Models\User::where('role', 'asesor')->count(),
-            'latest_kredensials' => \App\Models\Kredensial::latest()->take(5)->get()
+            'latest_kredensials' => \App\Models\Kredensial::latest()->take(5)->get(),
+            'status_chart' => [
+                'Submitted' => \App\Models\Kredensial::where('status', 'Submitted')->count(),
+                'Under Review' => \App\Models\Kredensial::where('status', 'Under Review')->count(),
+                'Approved' => \App\Models\Kredensial::where('status', 'Approved')->count(),
+            ]
         ];
         return view('admin.dashboard', compact('stats'));
     }
@@ -32,14 +37,91 @@ class AdminController extends Controller
         return view('admin.ases', compact('kredensial'));
     }
 
+    public function listApproved()
+    {
+        $kredensials = \App\Models\Kredensial::where('status', 'Approved')->orderBy('updated_at', 'desc')->get();
+        return view('admin.kredensial.approved', compact('kredensials'));
+    }
+
+    public function cancelApproved($id)
+    {
+        $kredensial = Kredensial::findOrFail($id);
+        $kredensial->update(['status' => 'Under Review']);
+        return back()->with('success', 'Penilaian berhasil dibatalkan dan dikembalikan ke antrian Under Review.');
+    }
+
+    public function exportRekapitulasi()
+    {
+        $kredensials = Kredensial::where('status', 'Approved')->orderBy('updated_at', 'desc')->get();
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Header
+        $headers = ['A1' => 'No', 'B1' => 'Tanggal Masuk', 'C1' => 'Tanggal Dinilai', 'D1' => 'Nama Asesi', 'E1' => 'Jabatan', 'F1' => 'Unit Kerja', 'G1' => 'Status Kredensial', 'H1' => 'Rekomendasi Asesor', 'I1' => 'Catatan Asesor'];
+        foreach($headers as $cell => $val) {
+            $sheet->setCellValue($cell, $val);
+            $sheet->getStyle($cell)->getFont()->setBold(true);
+        }
+
+        $row = 2;
+        $no = 1;
+        foreach ($kredensials as $k) {
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $k->created_at->format('d/m/Y H:i'));
+            $sheet->setCellValue('C' . $row, $k->updated_at->format('d/m/Y H:i'));
+            $sheet->setCellValue('D' . $row, $k->nama_asesi);
+            $sheet->setCellValue('E' . $row, $k->jabatan);
+            $sheet->setCellValue('F' . $row, $k->data_lengkap['prof_unit_kerja'] ?? '-');
+            $sheet->setCellValue('G' . $row, $k->status);
+            
+            $rekomendasi = $k->data_asesor['rekomendasi'] ?? '';
+            $rekText = $rekomendasi == 'lanjut' ? 'Lanjut' : ($rekomendasi == 'tidak_lanjut' ? 'Tidak Lanjut' : '-');
+            $sheet->setCellValue('H' . $row, $rekText);
+            
+            $sheet->setCellValue('I' . $row, $k->data_asesor['catatan'] ?? '-');
+            
+            $row++;
+        }
+
+        foreach (range('A', 'I') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $filename = 'Rekapitulasi_Kredensial_Selesai_' . date('Y_m') . '.xlsx';
+        
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . urlencode($filename) . '"');
+        $writer->save('php://output');
+        exit;
+    }
+
     public function storeAses(Request $request, $id)
     {
         $kredensial = Kredensial::findOrFail($id);
+        
+        $status = $kredensial->status;
+        if ($request->action === 'selesai') {
+            $status = 'Approved';
+        } elseif ($status === 'Submitted') {
+            $status = 'Under Review';
+        }
+
+        $data = $kredensial->data_lengkap ?? [];
+        $data['last_form_updated'] = 'Penilaian Asesor';
+
         $kredensial->update([
-            'data_asesor' => $request->ases
+            'data_asesor' => $request->ases,
+            'status' => $status,
+            'data_lengkap' => $data
         ]);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Penilaian asesor berhasil disimpan.');
+        if ($request->action === 'selesai') {
+            return redirect()->route('admin.kredensial.approved')->with('success', 'Penilaian selesai dan peserta ditandai Selesai Dinilai.');
+        }
+
+        return redirect()->back()->with('success', 'Draft penilaian asesor berhasil disimpan.');
     }
 
     public function showForm5($id)
@@ -51,11 +133,20 @@ class AdminController extends Controller
     public function storeForm5(Request $request, $id)
     {
         $kredensial = Kredensial::findOrFail($id);
+        $data = $kredensial->data_lengkap ?? [];
+        $data['last_form_updated'] = 'Form 5';
+        
         $kredensial->update([
-            'data_form5' => $request->form5
+            'data_form5' => $request->form5,
+            'data_lengkap' => $data
         ]);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Form 5 berhasil disimpan');
+        if ($request->action === 'selesai') {
+            $kredensial->update(['status' => 'Approved']);
+            return redirect()->route('admin.kredensial.approved')->with('success', 'Form 5 disimpan dan Penilaian Kredensial diselesaikan.');
+        }
+
+        return redirect()->back()->with('success', 'Form 5 berhasil disimpan');
     }
 
     public function showForm6($id)
@@ -67,13 +158,22 @@ class AdminController extends Controller
     public function storeForm6(Request $request, $id)
     {
         $kredensial = Kredensial::findOrFail($id);
+        $data = $kredensial->data_lengkap ?? [];
+        $data['last_form_updated'] = 'Form 6';
+
         $kredensial->update([
-            'data_form6' => $request->form6
+            'data_form6' => $request->form6,
+            'data_lengkap' => $data
         ]);
 
         \App\Models\ActivityLog::log("Menilai Form 6 untuk pengajuan #{$id}", $kredensial);
 
-        return redirect()->route('admin.kredensial.index')->with('success', 'Form 6 berhasil disimpan');
+        if ($request->action === 'selesai') {
+            $kredensial->update(['status' => 'Approved']);
+            return redirect()->route('admin.kredensial.approved')->with('success', 'Form 6 disimpan dan Penilaian Kredensial diselesaikan.');
+        }
+
+        return redirect()->back()->with('success', 'Form 6 berhasil disimpan');
     }
 
     public function showForm7($id)
@@ -86,13 +186,22 @@ class AdminController extends Controller
     public function storeForm7(Request $request, $id)
     {
         $kredensial = Kredensial::findOrFail($id);
+        $data = $kredensial->data_lengkap ?? [];
+        $data['last_form_updated'] = 'Form 7';
+
         $kredensial->update([
-            'data_form7' => $request->form7
+            'data_form7' => $request->form7,
+            'data_lengkap' => $data
         ]);
 
         \App\Models\ActivityLog::log("Menilai Form 7 untuk pengajuan #{$id}", $kredensial);
 
-        return redirect()->route('admin.kredensial.index')->with('success', 'Form 7 berhasil disimpan');
+        if ($request->action === 'selesai') {
+            $kredensial->update(['status' => 'Approved']);
+            return redirect()->route('admin.kredensial.approved')->with('success', 'Form 7 disimpan dan Penilaian Kredensial diselesaikan.');
+        }
+
+        return redirect()->back()->with('success', 'Form 7 berhasil disimpan');
     }
 
     public function showForm9($id)
@@ -104,13 +213,22 @@ class AdminController extends Controller
     public function storeForm9(Request $request, $id)
     {
         $kredensial = Kredensial::findOrFail($id);
+        $data = $kredensial->data_lengkap ?? [];
+        $data['last_form_updated'] = 'Form 9';
+
         $kredensial->update([
-            'data_form9' => $request->form9
+            'data_form9' => $request->form9,
+            'data_lengkap' => $data
         ]);
 
         \App\Models\ActivityLog::log("Menilai Form 9 untuk pengajuan #{$id}", $kredensial);
 
-        return redirect()->route('admin.kredensial.index')->with('success', 'Form 9 berhasil disimpan');
+        if ($request->action === 'selesai') {
+            $kredensial->update(['status' => 'Approved']);
+            return redirect()->route('admin.kredensial.approved')->with('success', 'Form 9 disimpan dan Penilaian Kredensial diselesaikan.');
+        }
+
+        return redirect()->back()->with('success', 'Form 9 berhasil disimpan');
     }
 
     public function showForm3A($id)
@@ -122,13 +240,22 @@ class AdminController extends Controller
     public function storeForm3A(Request $request, $id)
     {
         $kredensial = Kredensial::findOrFail($id);
+        $data = $kredensial->data_lengkap ?? [];
+        $data['last_form_updated'] = 'Form 3A';
+
         $kredensial->update([
-            'data_form3a' => $request->form3a
+            'data_form3a' => $request->form3a,
+            'data_lengkap' => $data
         ]);
 
         \App\Models\ActivityLog::log("Menilai Form 3A untuk pengajuan #{$id}", $kredensial);
 
-        return redirect()->route('admin.kredensial.index')->with('success', 'Form 3A berhasil disimpan');
+        if ($request->action === 'selesai') {
+            $kredensial->update(['status' => 'Approved']);
+            return redirect()->route('admin.kredensial.approved')->with('success', 'Form 3A disimpan dan Penilaian Kredensial diselesaikan.');
+        }
+
+        return redirect()->back()->with('success', 'Form 3A berhasil disimpan');
     }
 
     public function showForm3B($id)
@@ -140,13 +267,22 @@ class AdminController extends Controller
     public function storeForm3B(Request $request, $id)
     {
         $kredensial = Kredensial::findOrFail($id);
+        $data = $kredensial->data_lengkap ?? [];
+        $data['last_form_updated'] = 'Form 3B';
+
         $kredensial->update([
-            'data_form3b' => $request->form3b
+            'data_form3b' => $request->form3b,
+            'data_lengkap' => $data
         ]);
 
         \App\Models\ActivityLog::log("Menilai Form 3B untuk pengajuan #{$id}", $kredensial);
 
-        return redirect()->route('admin.kredensial.index')->with('success', 'Form 3B berhasil disimpan');
+        if ($request->action === 'selesai') {
+            $kredensial->update(['status' => 'Approved']);
+            return redirect()->route('admin.kredensial.approved')->with('success', 'Form 3B disimpan dan Penilaian Kredensial diselesaikan.');
+        }
+
+        return redirect()->back()->with('success', 'Form 3B berhasil disimpan');
     }
 
     public function showForm3D($id)
@@ -158,13 +294,22 @@ class AdminController extends Controller
     public function storeForm3D(Request $request, $id)
     {
         $kredensial = Kredensial::findOrFail($id);
+        $data = $kredensial->data_lengkap ?? [];
+        $data['last_form_updated'] = 'Form 3D';
+
         $kredensial->update([
-            'data_form3d' => $request->form3d
+            'data_form3d' => $request->form3d,
+            'data_lengkap' => $data
         ]);
 
         \App\Models\ActivityLog::log("Menilai Form 3D untuk pengajuan #{$id}", $kredensial);
 
-        return redirect()->route('admin.kredensial.index')->with('success', 'Form 3D berhasil disimpan');
+        if ($request->action === 'selesai') {
+            $kredensial->update(['status' => 'Approved']);
+            return redirect()->route('admin.kredensial.approved')->with('success', 'Form 3D disimpan dan Penilaian Kredensial diselesaikan.');
+        }
+
+        return redirect()->back()->with('success', 'Form 3D berhasil disimpan');
     }
 
     public function download($id)

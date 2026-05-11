@@ -112,18 +112,18 @@
                                     </div>
                                     @foreach($val['items'] as $subKey => $subVal)
                                         <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; background: white;">
-                                            <div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">{{ $subVal }}</div>
+                                            <div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 12px; line-height: 1.5;">{{ $subVal }}</div>
                                             
-                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
-                                                <div>
-                                                    <div style="font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 4px; letter-spacing: 0.05em;">KETERANGAN ASESI</div>
-                                                    <div style="font-size: 12px; color: #334155; font-style: italic; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px dashed #cbd5e1; min-height: 36px;">
+                                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start;">
+                                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                                    <div style="font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.05em;">KETERANGAN ASESI</div>
+                                                    <div style="font-size: 12px; color: #334155; font-style: italic; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px dashed #cbd5e1; min-height: 38px; display: flex; align-items: center;">
                                                         {{ $asesiComp[$subKey] ?? '-' }}
                                                     </div>
                                                 </div>
-                                                <div>
-                                                    <div style="font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 4px; letter-spacing: 0.05em;">BUKTI RELEVAN</div>
-                                                    <select name="ases[bukti_text][{{ $subKey }}]" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; background: white;">
+                                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                                    <div style="font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.05em;">BUKTI RELEVAN</div>
+                                                    <select name="ases[bukti_text][{{ $subKey }}]" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; background: white; height: 38px; outline: none;">
                                                         <option value="">-- Pilih Bukti --</option>
                                                         <option value="SERKOM" {{ ($savedBukti[$subKey] ?? '') == 'SERKOM' ? 'selected' : '' }}>SERKOM</option>
                                                         <option value="JOBDES" {{ ($savedBukti[$subKey] ?? '') == 'JOBDES' ? 'selected' : '' }}>JOBDES</option>
@@ -131,28 +131,30 @@
                                                         <option value="LAIN-LAIN" {{ ($savedBukti[$subKey] ?? '') == 'LAIN-LAIN' ? 'selected' : '' }}>LAIN-LAIN</option>
                                                     </select>
                                                 </div>
-                                            </div>
-                                            
-                                            <div style="display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 10px 14px; border-radius: 8px; border: 1px solid #e0e7ff; width: fit-content;">
-                                                <input type="checkbox" id="chk_{{ $subKey }}" name="ases[kompetensi][{{ $subKey }}]" value="1" {{ isset($saved[$subKey]) ? 'checked' : '' }} style="width: 16px; height: 16px; cursor: pointer; accent-color: #4f46e5;">
-                                                <label for="chk_{{ $subKey }}" style="font-size: 12px; font-weight: 700; color: #4338ca; cursor: pointer; user-select: none;">Kompeten (V)</label>
+                                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                                    <div style="font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.05em;">PENILAIAN</div>
+                                                    <label style="display: flex; align-items: center; gap: 10px; background: #eef2ff; padding: 0 14px; border-radius: 6px; border: 1px solid #e0e7ff; height: 38px; cursor: pointer;">
+                                                        <input type="checkbox" name="ases[kompetensi][{{ $subKey }}]" value="1" {{ isset($saved[$subKey]) ? 'checked' : '' }} style="width: 16px; height: 16px; cursor: pointer; accent-color: #4f46e5;">
+                                                        <span style="font-size: 12px; font-weight: 700; color: #4338ca; user-select: none;">Kompeten (V)</span>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     @endforeach
                                 @else
                                     <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; background: white;">
-                                        <div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">{{ $val }}</div>
+                                        <div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 12px; line-height: 1.5;">{{ $val }}</div>
                                         
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
-                                            <div>
-                                                <div style="font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 4px; letter-spacing: 0.05em;">KETERANGAN ASESI</div>
-                                                <div style="font-size: 12px; color: #334155; font-style: italic; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px dashed #cbd5e1; min-height: 36px;">
+                                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start;">
+                                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                                <div style="font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.05em;">KETERANGAN ASESI</div>
+                                                <div style="font-size: 12px; color: #334155; font-style: italic; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px dashed #cbd5e1; min-height: 38px; display: flex; align-items: center;">
                                                     {{ $asesiComp[$key] ?? '-' }}
                                                 </div>
                                             </div>
-                                            <div>
-                                                <div style="font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 4px; letter-spacing: 0.05em;">BUKTI RELEVAN</div>
-                                                <select name="ases[bukti_text][{{ $key }}]" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; background: white;">
+                                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                                <div style="font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.05em;">BUKTI RELEVAN</div>
+                                                <select name="ases[bukti_text][{{ $key }}]" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; background: white; height: 38px; outline: none;">
                                                     <option value="">-- Pilih Bukti --</option>
                                                     <option value="SERKOM" {{ ($savedBukti[$key] ?? '') == 'SERKOM' ? 'selected' : '' }}>SERKOM</option>
                                                     <option value="JOBDES" {{ ($savedBukti[$key] ?? '') == 'JOBDES' ? 'selected' : '' }}>JOBDES</option>
@@ -160,11 +162,13 @@
                                                     <option value="LAIN-LAIN" {{ ($savedBukti[$key] ?? '') == 'LAIN-LAIN' ? 'selected' : '' }}>LAIN-LAIN</option>
                                                 </select>
                                             </div>
-                                        </div>
-                                        
-                                        <div style="display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 10px 14px; border-radius: 8px; border: 1px solid #e0e7ff; width: fit-content;">
-                                            <input type="checkbox" id="chk_{{ $key }}" name="ases[kompetensi][{{ $key }}]" value="1" {{ isset($saved[$key]) ? 'checked' : '' }} style="width: 16px; height: 16px; cursor: pointer; accent-color: #4f46e5;">
-                                            <label for="chk_{{ $key }}" style="font-size: 12px; font-weight: 700; color: #4338ca; cursor: pointer; user-select: none;">Kompeten (V)</label>
+                                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                                <div style="font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.05em;">PENILAIAN</div>
+                                                <label style="display: flex; align-items: center; gap: 10px; background: #eef2ff; padding: 0 14px; border-radius: 6px; border: 1px solid #e0e7ff; height: 38px; cursor: pointer;">
+                                                    <input type="checkbox" name="ases[kompetensi][{{ $key }}]" value="1" {{ isset($saved[$key]) ? 'checked' : '' }} style="width: 16px; height: 16px; cursor: pointer; accent-color: #4f46e5;">
+                                                    <span style="font-size: 12px; font-weight: 700; color: #4338ca; user-select: none;">Kompeten (V)</span>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 @endif
@@ -263,15 +267,39 @@
                         </div>
                     </div>
                     
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 12px; color: #334155;">Catatan untuk Asesi:</label>
+                        <textarea name="ases[catatan]" rows="4" style="width: 100%; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; background: #F9FAFB;" placeholder="Masukkan catatan tambahan yang akan dibaca oleh asesi...">{{ $kredensial->data_asesor['catatan'] ?? '' }}</textarea>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 4px; color: #991b1b;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                            Catatan Privat Asesor
+                        </label>
+                        <p style="font-size: 11px; color: #dc2626; margin-bottom: 8px;">*Hanya bisa dibaca oleh Anda, tidak muncul di pihak asesi.</p>
+                        <textarea name="ases[catatan_privat]" rows="3" style="width: 100%; padding: 12px; border: 1px dashed #f87171; border-radius: 8px; font-size: 14px; background: #fef2f2; outline: none;" placeholder="Tulis catatan pribadi/pengingat di sini...">{{ $kredensial->data_asesor['catatan_privat'] ?? '' }}</textarea>
+                    </div>
+
                     <div>
-                        <label style="display: block; font-weight: 700; margin-bottom: 12px; color: #334155;">Catatan:</label>
-                        <textarea name="ases[catatan]" rows="4" style="width: 100%; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; background: #F9FAFB;" placeholder="Masukkan catatan tambahan jika ada...">{{ $kredensial->data_asesor['catatan'] ?? '' }}</textarea>
+                        <label style="display: block; font-weight: 700; margin-bottom: 12px; color: #334155;">Tanda Tangan Digital Asesor:</label>
+                        <div style="border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; width: 100%; max-width: 500px; background: white; touch-action: none;">
+                            <!-- The image preview if signature already exists -->
+                            <img id="sigPreview" src="{{ $kredensial->data_asesor['ttd_asesor'] ?? '' }}" style="display: {{ isset($kredensial->data_asesor['ttd_asesor']) ? 'block' : 'none' }}; width: 100%; max-height: 200px; object-fit: contain; pointer-events: none;">
+                            
+                            <!-- The canvas for new signature -->
+                            <canvas id="sigCanvas" style="display: {{ isset($kredensial->data_asesor['ttd_asesor']) ? 'none' : 'block' }}; width: 100%; height: 200px; cursor: crosshair;"></canvas>
+                        </div>
+                        <div style="margin-top: 10px; display: flex; gap: 10px;">
+                            <button type="button" onclick="clearSignature()" style="font-size: 12px; background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 6px 14px; border-radius: 6px; font-weight: 700; cursor: pointer;">Hapus & TTD Ulang</button>
+                        </div>
+                        <input type="hidden" name="ases[ttd_asesor]" id="ttd_asesor" value="{{ $kredensial->data_asesor['ttd_asesor'] ?? '' }}">
                     </div>
                 </div>
             </div>
 
-            <div class="footer">
-                <button type="submit" class="btn btn-primary">Simpan Seluruh Penilaian</button>
+            <div class="footer" style="display: flex; gap: 16px; justify-content: flex-end; padding: 20px 0; border-top: 1px solid #e2e8f0; margin-top: 20px;">
+                <button type="submit" name="action" value="simpan" class="btn btn-secondary" style="background: #1e293b; color: white; border: none; padding: 12px 24px; font-weight: 700; border-radius: 8px; cursor: pointer; width: 100%;">💾 Simpan Draft Penilaian Asesor</button>
             </div>
         </form>
     </div>
@@ -279,32 +307,95 @@
     <script>
         function toggleAccordion(index) {
             const item = document.getElementById('item_' + index);
-            const isActive = item.classList.contains('active');
-            
-            // Optional: Close others
-            // document.querySelectorAll('.acc-item').forEach(el => el.classList.remove('active'));
-            
-            if (isActive) {
-                item.classList.remove('active');
-            } else {
-                item.classList.add('active');
+            item.classList.toggle('active');
+        }
+
+        // Signature Pad Logic
+        const canvas = document.getElementById('sigCanvas');
+        const ctx = canvas.getContext('2d');
+        const sigInput = document.getElementById('ttd_asesor');
+        const sigPreview = document.getElementById('sigPreview');
+        
+        let isDrawing = false;
+        
+        // Handle responsive canvas size
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            ctx.scale(ratio, ratio);
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        // Initial setup timeout to allow rendering
+        setTimeout(resizeCanvas, 100);
+
+        function getCoordinates(e) {
+            if (e.touches && e.touches.length > 0) {
+                const rect = canvas.getBoundingClientRect();
+                return {
+                    x: e.touches[0].clientX - rect.left,
+                    y: e.touches[0].clientY - rect.top
+                };
+            }
+            return { x: e.offsetX, y: e.offsetY };
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const { x, y } = getCoordinates(e);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            e.preventDefault();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const { x, y } = getCoordinates(e);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            saveSignature();
+            e.preventDefault();
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                ctx.closePath();
+                saveSignature();
             }
         }
+
+        function saveSignature() {
+            // Only save if it's currently visible (not showing preview)
+            if (canvas.style.display !== 'none') {
+                sigInput.value = canvas.toDataURL('image/png');
+            }
+        }
+
+        window.clearSignature = function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            sigInput.value = '';
+            sigPreview.style.display = 'none';
+            canvas.style.display = 'block';
+            resizeCanvas();
+        }
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Touch Events
+        canvas.addEventListener('touchstart', startDrawing, {passive: false});
+        canvas.addEventListener('touchmove', draw, {passive: false});
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchcancel', stopDrawing);
     </script>
-
-            <div class="legend">
-                <h4>Kode dan tipe-tipe bukti:</h4>
-                <p><b>SERKOM</b> = Sertifikat atau kualifikasi (contoh: pelatihan, keahlian)<br>
-                <b>JOBDES</b> = Uraian tugas di tempat kerja<br>
-                <b>SKET</b> = Surat Keterangan dari atasan<br>
-                <b>LAIN-LAIN</b> = Bukti-bukti lainnya yang relevan</p>
-            </div>
-
-            <div class="floating-footer">
-                <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">Batal</a>
-                <button type="submit" class="btn btn-primary">Simpan Penilaian Asesor</button>
-            </div>
-        </form>
-    </div>
 </body>
 </html>

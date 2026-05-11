@@ -18,14 +18,14 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'username' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:8',
             'role' => 'required|in:user,admin,asesor',
         ]);
 
         User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'username' => $request->username,
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
@@ -38,14 +38,24 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         
         $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,'.$user->id,
             'role' => 'required|in:user,admin,asesor',
         ]);
 
-        $user->update([
+        $data = [
+            'name' => $request->name,
+            'username' => $request->username,
             'role' => $request->role
-        ]);
+        ];
 
-        return back()->with('success', 'Role user berhasil diubah');
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return back()->with('success', 'Data user berhasil diubah');
     }
 
     public function destroy($id)

@@ -7,13 +7,27 @@ use Illuminate\Http\Request;
 
 class AsesorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $kredensials = Kredensial::where('status', 'Submitted')
-            ->orWhere('status', 'Under Review')
+        $query = Kredensial::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_asesi', 'like', "%{$search}%")
+                  ->orWhere('jabatan', 'like', "%{$search}%")
+                  ->orWhere('data_lengkap', 'like', "%{$search}%");
+            });
+        }
+
+        $kredensials = (clone $query)->whereIn('status', ['Submitted', 'Under Review'])
             ->orderBy('created_at', 'desc')
             ->get();
             
-        return view('asesor.dashboard', compact('kredensials'));
+        $history = (clone $query)->where('status', 'Approved')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+            
+        return view('asesor.dashboard', compact('kredensials', 'history'));
     }
 }
