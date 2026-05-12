@@ -485,7 +485,7 @@ class AdminController extends Controller
     public function viewFile($id, $type)
     {
         $kredensial = Kredensial::findOrFail($id);
-        $files = $kredensial->data_lengkap['files'] ?? [];
+        $files = $kredensial->data_lengkap['file_paths'] ?? $kredensial->data_lengkap['files'] ?? [];
         
         if (!isset($files[$type])) {
             abort(404, 'File tidak ditemukan');

@@ -283,17 +283,23 @@
 
                     <div>
                         <label style="display: block; font-weight: 700; margin-bottom: 12px; color: #334155;">Tanda Tangan Digital Asesor:</label>
-                        <div style="border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; width: 100%; max-width: 500px; background: white; touch-action: none;">
+                        <div style="border: 2px dashed #cbd5e1; border-radius: 12px; overflow: hidden; width: 100%; max-width: 500px; background: white; touch-action: none; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                            @php
+                                $ttd = $kredensial->data_asesor['ttd_asesor'] ?? '';
+                                $hasTtd = !empty($ttd) && strpos($ttd, 'data:image') === 0;
+                            @endphp
                             <!-- The image preview if signature already exists -->
-                            <img id="sigPreview" src="{{ $kredensial->data_asesor['ttd_asesor'] ?? '' }}" style="display: {{ isset($kredensial->data_asesor['ttd_asesor']) ? 'block' : 'none' }}; width: 100%; max-height: 200px; object-fit: contain; pointer-events: none;">
+                            <img id="sigPreview" src="{{ $ttd }}" 
+                                 onerror="this.style.display='none'; document.getElementById('sigCanvas').style.display='block'; setTimeout(resizeCanvas, 50);"
+                                 style="display: {{ $hasTtd ? 'block' : 'none' }}; width: 100%; max-height: 200px; object-fit: contain; pointer-events: none;">
                             
                             <!-- The canvas for new signature -->
-                            <canvas id="sigCanvas" style="display: {{ isset($kredensial->data_asesor['ttd_asesor']) ? 'none' : 'block' }}; width: 100%; height: 200px; cursor: crosshair;"></canvas>
+                            <canvas id="sigCanvas" style="display: {{ $hasTtd ? 'none' : 'block' }}; width: 100%; height: 200px; cursor: crosshair;"></canvas>
                         </div>
                         <div style="margin-top: 10px; display: flex; gap: 10px;">
                             <button type="button" onclick="clearSignature()" style="font-size: 12px; background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 6px 14px; border-radius: 6px; font-weight: 700; cursor: pointer;">Hapus & TTD Ulang</button>
                         </div>
-                        <input type="hidden" name="ases[ttd_asesor]" id="ttd_asesor" value="{{ $kredensial->data_asesor['ttd_asesor'] ?? '' }}">
+                        <input type="hidden" name="ases[ttd_asesor]" id="ttd_asesor" value="{{ $ttd }}">
                     </div>
                 </div>
             </div>
@@ -307,7 +313,16 @@
     <script>
         function toggleAccordion(index) {
             const item = document.getElementById('item_' + index);
-            item.classList.toggle('active');
+            const isActive = item.classList.toggle('active');
+            
+            // If opening an accordion, check if it contains the signature canvas
+            if (isActive) {
+                const hasCanvas = item.querySelector('#sigCanvas');
+                if (hasCanvas) {
+                    // Small delay to allow CSS transitions/visibility to update
+                    setTimeout(resizeCanvas, 50);
+                }
+            }
         }
 
         // Signature Pad Logic
@@ -320,29 +335,57 @@
         
         // Handle responsive canvas size
         function resizeCanvas() {
+            if (canvas.offsetWidth === 0) return; // Don't resize if hidden
+            
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const currentData = canvas.toDataURL(); // Save current drawing if any
+            
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             ctx.scale(ratio, ratio);
+            
+            // Re-apply styles after resize
             ctx.strokeStyle = '#0f172a';
             ctx.lineWidth = 3;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
+            
+            // If there was data, we might want to restore it, 
+            // but setting width/height clears canvas. 
+            // For TTD usually clearing on resize is acceptable or we restore:
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, canvas.width/ratio, canvas.height/ratio);
+            };
+            if (sigInput.value && sigInput.value.startsWith('data:image')) {
+                img.src = sigInput.value;
+            }
         }
         
-        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('resize', () => {
+            // Debounce resize
+            clearTimeout(window.sigResizeTimeout);
+            window.sigResizeTimeout = setTimeout(resizeCanvas, 100);
+        });
         // Initial setup timeout to allow rendering
-        setTimeout(resizeCanvas, 100);
+        setTimeout(resizeCanvas, 300);
 
         function getCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX, clientY;
+            
             if (e.touches && e.touches.length > 0) {
-                const rect = canvas.getBoundingClientRect();
-                return {
-                    x: e.touches[0].clientX - rect.left,
-                    y: e.touches[0].clientY - rect.top
-                };
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
             }
-            return { x: e.offsetX, y: e.offsetY };
+            
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
         }
 
         function startDrawing(e) {
@@ -358,7 +401,6 @@
             const { x, y } = getCoordinates(e);
             ctx.lineTo(x, y);
             ctx.stroke();
-            saveSignature();
             e.preventDefault();
         }
 
