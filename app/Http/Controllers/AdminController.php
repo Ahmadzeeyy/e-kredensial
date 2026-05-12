@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kredensial;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminController extends Controller
 {
@@ -511,6 +512,80 @@ class AdminController extends Controller
         \App\Models\ActivityLog::log("Mengubah status pengajuan #{$id} dari {$oldStatus} ke {$request->status}", $kredensial);
 
         return back()->with('success', 'Status pengajuan berhasil diperbarui');
+    }
+
+    public function generateSertifikat($id)
+    {
+        $kredensial = Kredensial::findOrFail($id);
+        
+        // Proteksi: Jika bukan admin, cek apakah ini milik user tersebut
+        if (auth()->user()->role !== 'admin' && $kredensial->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses ke sertifikat ini.');
+        }
+
+        // Jika belum disetujui, jangan kasih sertifikat
+        if ($kredensial->status !== 'Approved') {
+            return back()->with('error', 'Sertifikat belum tersedia karena pengajuan belum disetujui.');
+        }
+        
+        // Data Sertifikat
+        $data = [
+            'nama_asesi' => $kredensial->nama_asesi,
+            'jabatan' => $kredensial->jabatan,
+            'unit_kerja' => $kredensial->data_lengkap['prof_unit_kerja'] ?? '-',
+            'tanggal_selesai' => $kredensial->updated_at->format('d F Y'),
+            'nomor_sertifikat' => 'KRED/' . date('Y/m/') . str_pad($kredensial->id, 4, '0', STR_PAD_LEFT),
+            'nama_asesor' => $kredensial->data_lengkap['nama_asessor'] ?? ($kredensial->data_asesor['nama_asesor'] ?? 'Tim Kredensial'),
+            'rekomendasi' => $kredensial->data_asesor['rekomendasi'] ?? '-',
+            'kredensial' => $kredensial
+        ];
+
+        // Jika request ingin lihat di browser (HTML)
+        if (request()->has('preview')) {
+            return view('admin.sertifikat', compact('data', 'kredensial'));
+        }
+
+        // Menggunakan Dompdf secara langsung (bypass facade yang error)
+        $dompdf = new \Dompdf\Dompdf();
+        $dompdf->setPaper('a4', 'landscape');
+        $dompdf->loadHtml(view('admin.sertifikat', compact('data', 'kredensial'))->render());
+        $dompdf->render();
+        
+        return response($dompdf->output())
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="Sertifikat_Kredensial_' . str_replace(' ', '_', $kredensial->nama_asesi) . '.pdf"');
+    }
+
+    public function certificateSettings()
+    {
+        $background = \App\Models\Setting::get('certificate_background');
+        return view('admin.settings.certificate', compact('background'));
+    }
+
+    public function updateCertificateSettings(Request $request)
+    {
+        $request->validate([
+            'background' => 'required|image|mimes:jpeg,png,jpg|max:5120', // Max 5MB
+        ]);
+
+        if ($request->hasFile('background')) {
+            $file = $request->file('background');
+            $filename = 'cert_bg_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/certificate'), $filename);
+
+            // Simpan ke setting
+            \App\Models\Setting::set('certificate_background', 'uploads/certificate/' . $filename);
+
+            return back()->with('success', 'Template background sertifikat berhasil diperbarui');
+        }
+
+        return back()->with('error', 'Gagal mengunggah file');
+    }
+
+    public function resetCertificateTemplate()
+    {
+        \App\Models\Setting::set('certificate_background', null);
+        return back()->with('success', 'Berhasil mereset template ke desain standar sistem');
     }
 }
 

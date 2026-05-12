@@ -15,6 +15,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\KredensialController::class, 'dashboard'])->name('dashboard');
     Route::post('/dashboard/competency', [App\Http\Controllers\KredensialController::class, 'storeCompetency'])->name('dashboard.competency');
     Route::post('/generate', [App\Http\Controllers\KredensialController::class, 'generate'])->name('generate');
+    Route::get('/kredensial/{id}/sertifikat', [App\Http\Controllers\AdminController::class, 'generateSertifikat'])->name('kredensial.sertifikat');
 });
 
 // Auth Routes
@@ -58,7 +59,12 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/users', [App\Http\Controllers\UserController::class, 'index'])->name('admin.users.index');
     Route::post('/users', [App\Http\Controllers\UserController::class, 'store'])->name('admin.users.store');
     Route::put('/users/{id}', [App\Http\Controllers\UserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/users/{id}', [App\Http\Controllers\AdminController::class, 'destroy'])->name('admin.users.destroy');
+    Route::delete('/users/{id}', [App\Http\Controllers\UserController::class, 'destroy'])->name('admin.users.destroy');
+
+    // Template Sertifikat
+    Route::get('/settings/certificate', [App\Http\Controllers\AdminController::class, 'certificateSettings'])->name('admin.settings.certificate');
+    Route::post('/settings/certificate', [App\Http\Controllers\AdminController::class, 'updateCertificateSettings'])->name('admin.settings.certificate.update');
+    Route::post('/settings/certificate/reset', [App\Http\Controllers\AdminController::class, 'resetCertificateTemplate'])->name('admin.settings.certificate.reset');
 });
 
 // Asesor Routes

@@ -193,6 +193,14 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                     <span>Dashboard</span>
                 </a>
+                <a href="javascript:void(0)" onclick="switchTab('antrian')" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    <span>Antrian Masuk</span>
+                </a>
+                <a href="javascript:void(0)" onclick="switchTab('riwayat')" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                    <span>Riwayat Selesai</span>
+                </a>
             </div>
 
             <div class="sidebar-footer">
@@ -362,14 +370,30 @@
 
         <script>
             function switchTab(tab) {
+                // Sembunyikan/Tampilkan Konten
                 document.getElementById('content-antrian').style.display = tab === 'antrian' ? 'block' : 'none';
                 document.getElementById('content-riwayat').style.display = tab === 'riwayat' ? 'block' : 'none';
                 
+                // Update Style Tab (Tombol di atas tabel)
                 document.getElementById('tab-antrian').style.color = tab === 'antrian' ? 'var(--primary)' : '#64748b';
                 document.getElementById('tab-antrian').style.borderBottomColor = tab === 'antrian' ? 'var(--primary)' : 'transparent';
                 
                 document.getElementById('tab-riwayat').style.color = tab === 'riwayat' ? 'var(--primary)' : '#64748b';
                 document.getElementById('tab-riwayat').style.borderBottomColor = tab === 'riwayat' ? 'var(--primary)' : 'transparent';
+
+                // Update Style Sidebar (Menu di samping)
+                const sidebarItems = document.querySelectorAll('.nav-item');
+                sidebarItems.forEach(item => item.classList.remove('active'));
+                
+                if (tab === 'antrian') {
+                    sidebarItems[1].classList.add('active');
+                    sidebarItems[0].classList.remove('active');
+                } else if (tab === 'riwayat') {
+                    sidebarItems[2].classList.add('active');
+                    sidebarItems[0].classList.remove('active');
+                } else {
+                    sidebarItems[0].classList.add('active');
+                }
             }
         </script>
 

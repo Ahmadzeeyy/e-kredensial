@@ -23,13 +23,14 @@
             <h2 style="font-size: 1.125rem; font-weight: 700;">Daftar Peserta Selesai</h2>
         </div>
         <div style="overflow-x: auto;">
-            <table class="datatable" style="width: 100%; border-collapse: collapse;">
+            <table id="tableApproved" style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
                         <th style="padding: 16px 20px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Peserta / Jabatan</th>
                         <th style="padding: 16px 20px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Waktu Submit</th>
                         <th style="padding: 16px 20px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Selesai Dinilai</th>
                         <th style="padding: 16px 20px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Informasi</th>
+                        <th style="padding: 16px 20px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Sertifikat</th>
                         <th style="padding: 16px 20px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Aksi</th>
                     </tr>
                 </thead>
@@ -60,8 +61,13 @@
                             </div>
                         </td>
                         <td style="padding: 16px 20px; text-align: center;">
+                            <a href="{{ route('kredensial.sertifikat', $k->id) }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.5rem 0.8rem; background: #fff7ed; color: #c2410c; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 11px; border: 1px solid #fdba74;" title="Generate Sertifikat">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                                Cetak
+                            </a>
+                        </td>
+                        <td style="padding: 16px 20px; text-align: center;">
                             <div style="display: flex; gap: 6px; justify-content: center;">
-                                <a href="{{ route('admin.ases', $k->id) }}" style="display: inline-flex; align-items: center; padding: 0.5rem 0.8rem; background: #f1f5f9; color: #475569; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 11px; transition: 0.2s; border: 1px solid #cbd5e1;" title="Lihat Penilaian">Lihat</a>
                                 <a href="{{ route('admin.download', $k->id) }}" style="display: inline-flex; align-items: center; padding: 0.5rem 0.8rem; background: #1e293b; color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 11px; transition: 0.2s;" title="Unduh Excel">Unduh</a>
                                 <form action="{{ route('admin.kredensial.cancel', $k->id) }}" method="POST" style="display: inline;">
                                     @csrf
@@ -72,7 +78,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5">
+                        <td colspan="6">
                             <div style="padding: 5rem 2rem; text-align: center; color: #94a3b8;">
                                 <div style="font-size: 4rem; margin-bottom: 1.5rem;">🎉</div>
                                 <h3 style="color: #475569;">Belum Ada Data Selesai</h3>
@@ -90,21 +96,24 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        if (!$.fn.DataTable.isDataTable('.datatable')) {
-            $('.datatable').DataTable({
-                language: {
-                    search: "Pencarian:",
-                    lengthMenu: "Tampilkan _MENU_ baris",
-                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                    paginate: {
-                        first: "Awal",
-                        last: "Akhir",
-                        next: "Selanjutnya",
-                        previous: "Sebelumnya"
-                    }
-                }
-            });
+        // Inisialisasi mandiri untuk menghindari bentrok
+        if ($.fn.DataTable.isDataTable('#tableApproved')) {
+            $('#tableApproved').DataTable().destroy();
         }
+        
+        $('#tableApproved').DataTable({
+            language: {
+                search: "Pencarian:",
+                lengthMenu: "Tampilkan _MENU_ baris",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                paginate: {
+                    first: "Awal",
+                    last: "Akhir",
+                    next: "Selanjutnya",
+                    previous: "Sebelumnya"
+                }
+            }
+        });
     });
 </script>
 @endpush
