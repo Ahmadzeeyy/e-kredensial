@@ -1557,15 +1557,41 @@ function toggleSubProfDropdown() {
 
 function filterSubProfesi(query) {
   const q = query.toLowerCase();
+  const jenis = document.getElementById('jenis_profesi').value;
   const options = document.querySelectorAll('#sub_profesi_options .option');
   const groups = document.querySelectorAll('#sub_profesi_options .opt-group');
   
   options.forEach(opt => {
+    // Check profession restriction
+    let isRestricted = false;
+    if (jenis === 'Bidan') {
+      let group = null;
+      let prev = opt.previousElementSibling;
+      while(prev) {
+        if (prev.classList.contains('opt-group')) { group = prev; break; }
+        prev = prev.previousElementSibling;
+      }
+      if (group && group.textContent !== 'MATERNAL DAN NEONATAL' && group.textContent !== 'Lainnya') {
+        isRestricted = true;
+      }
+    }
+
+    if (isRestricted) {
+      opt.classList.add('hidden');
+      return;
+    }
+
     const text = opt.textContent.toLowerCase();
     opt.classList.toggle('hidden', !text.includes(q));
   });
   
   groups.forEach(group => {
+    // Profession restriction for groups
+    if (jenis === 'Bidan' && group.textContent !== 'MATERNAL DAN NEONATAL' && group.textContent !== 'Lainnya') {
+      group.style.display = 'none';
+      return;
+    }
+
     let next = group.nextElementSibling;
     let hasVisible = false;
     while (next && next.classList.contains('option')) {
@@ -1664,10 +1690,13 @@ function handleJenjangChange() {
   if ((jenis === 'Perawat' && (jenjang === 'PK II' || jenjang === 'PK III')) || 
       (jenis === 'Bidan' && jenjang !== '')) {
     subContainer.style.display = 'block';
+    // Trigger filter to apply profession restrictions
+    filterSubProfesi(document.getElementById('sub_profesi_search').value);
   } else {
     subContainer.style.display = 'none';
     const subProf = document.getElementById('sub_profesi');
     if (subProf) subProf.value = "";
+    document.getElementById('sub_profesi_label').textContent = "-- Pilih Area --";
   }
 }
 
@@ -1764,6 +1793,7 @@ function validateSection(sec) {
     });
   }
 
+  if (sec === 1) {
     const jenis = document.getElementById('jenis_profesi').value;
     const jenjang = document.getElementById('jenjang_profesi').value;
     if ((jenis === 'Perawat' && (jenjang === 'PK II' || jenjang === 'PK III')) || 
