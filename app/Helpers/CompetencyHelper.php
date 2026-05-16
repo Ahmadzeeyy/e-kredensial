@@ -198,8 +198,12 @@ class CompetencyHelper
                         '2_q_6' => '6) Memberikan dukungan spiritual pada kondisi kehilangan, berduka, atau menjelang ajal (terminal) dalam pelayanan keperawatan',
                     ]
                 ],
-                '3_0' => '3 Melakukan diskusi refleksi kasus untuk meningkatkan kualitas',
-                '4_0' => '4 Mengelola pasien yang membutuhkan kewaspadaan transmisi',
+            ],
+            'MELAKUKAN DISKUSI REFLEKSI KASUS UNTUK MENINGKATKAN KUALITAS' => [
+                '3_0' => 'Melakukan diskusi refleksi kasus untuk meningkatkan kualitas',
+            ],
+            'MENGELOLA PASIEN YANG MEMBUTUHKAN KEWASPADAAN TRANSMISI' => [
+                '4_0' => 'Mengelola pasien yang membutuhkan kewaspadaan transmisi',
             ],
             'KOMPETENSI TAMBAHAN' => [
                 'T2_1' => '1 Melakukan perawatan pre dan post operasi',

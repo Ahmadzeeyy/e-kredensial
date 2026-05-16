@@ -65,6 +65,10 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/settings/certificate', [App\Http\Controllers\AdminController::class, 'certificateSettings'])->name('admin.settings.certificate');
     Route::post('/settings/certificate', [App\Http\Controllers\AdminController::class, 'updateCertificateSettings'])->name('admin.settings.certificate.update');
     Route::post('/settings/certificate/reset', [App\Http\Controllers\AdminController::class, 'resetCertificateTemplate'])->name('admin.settings.certificate.reset');
+    
+    // Action Tambahan
+    Route::delete('/kredensial/{id}', [App\Http\Controllers\AdminController::class, 'destroy'])->name('admin.kredensial.destroy');
+    Route::post('/kredensial/{id}/revise', [App\Http\Controllers\AdminController::class, 'revise'])->name('admin.kredensial.revise');
 });
 
 // Asesor Routes

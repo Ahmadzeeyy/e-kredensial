@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Asesor - Kredensial RSUD</title>
+    <title>Dashboard Asesor - E-ASKOMKRE</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <style>
@@ -271,13 +271,19 @@
                             <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
                                 <td style="padding: 16px 20px; text-align: left;">
                                     <div style="font-weight: 700; color: #1e293b; font-size: 14px;">{{ $k->nama_asesi }}</div>
-                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ $k->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</div>
+                                    <div style="font-size: 11px; font-weight: 600; color: #4F46E5; margin-top: 2px; text-transform: uppercase;">{{ $k->data_lengkap['jenis_profesi'] ?? '-' }}</div>
+                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 1px;">{{ $k->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</div>
                                 </td>
                                 <td style="padding: 16px 20px; text-align: left;">
-                                    @php $lbl = $k->status_label; @endphp
-                                    <span style="background: {{ $lbl['bg'] }}; color: {{ $lbl['color'] }}; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1px solid #e2e8f0; display: inline-block;">
-                                        {{ $lbl['text'] }}
-                                    </span>
+                                    <form action="{{ route('admin.update-status', $k->id) }}" method="POST" id="statusForm{{ $k->id }}" style="display: inline-block;">
+                                        @csrf
+                                        <select name="status" onchange="handleStatusChange(this, {{ $k->id }})" style="padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1px solid #e2e8f0; background: {{ $k->status_label['bg'] }}; color: {{ $k->status_label['color'] }}; cursor: pointer; appearance: none; display: inline-block;">
+                                            <option value="Submitted" {{ $k->status == 'Submitted' ? 'selected' : '' }}>Menunggu Review</option>
+                                            <option value="Under Review" {{ $k->status == 'Under Review' ? 'selected' : '' }}>Sedang Dicek</option>
+                                            <option value="Needs Revision" {{ $k->status == 'Needs Revision' ? 'selected' : '' }}>Perlu Revisi</option>
+                                            <option value="Approved" {{ $k->status == 'Approved' ? 'selected' : '' }}>Selesai / Disetujui</option>
+                                        </select>
+                                    </form>
                                 </td>
                                 <td style="padding: 16px 20px; text-align: left;">
                                     <button onclick="openPreview({{ $k->id }}, '{{ addslashes($k->nama_asesi) }}')" style="background: #fff; border: 1.5px solid #e2e8f0; padding: 8px 14px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #475569; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;" onmouseover="this.style.borderColor='#4F46E5'; this.style.color='#4F46E5'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.color='#475569'">
@@ -305,7 +311,17 @@
                                     </div>
                                 </td>
                                 <td style="padding: 16px 20px; text-align: center;">
-                                    <a href="{{ route('admin.ases', $k->id) }}" style="display: block; padding: 10px; background: #4F46E5; color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 11px; transition: 0.2s;" onmouseover="this.style.background='#4338CA'" onmouseout="this.style.background='#4F46E5'">Nilai Sekarang</a>
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        <a href="{{ route('admin.ases', $k->id) }}" style="display: block; padding: 8px 12px; background: #4F46E5; color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 11px; transition: 0.2s;" onmouseover="this.style.background='#4338CA'" onmouseout="this.style.background='#4F46E5'">Nilai Sekarang</a>
+                                        
+                                        <form action="{{ route('admin.kredensial.destroy', $k->id) }}" method="POST" style="width: 100%;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" style="width: 100%; padding: 8px 12px; background: white; color: #ef4444; border: 1px solid #fee2e2; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'" onclick="return confirm('Hapus seluruh data pengajuan milik {{ $k->nama_asesi }}? Tindakan ini tidak bisa dibatalkan.')">
+                                                🗑️ Hapus
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -339,7 +355,8 @@
                             <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
                                 <td style="padding: 16px 20px; text-align: left;">
                                     <div style="font-weight: 700; color: #1e293b; font-size: 14px;">{{ $h->nama_asesi }}</div>
-                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ $h->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</div>
+                                    <div style="font-size: 11px; font-weight: 600; color: #4F46E5; margin-top: 2px; text-transform: uppercase;">{{ $h->data_lengkap['jenis_profesi'] ?? '-' }}</div>
+                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 1px;">{{ $h->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</div>
                                 </td>
                                 <td style="padding: 16px 20px; text-align: left;">
                                     <span style="background: #ecfdf5; color: #059669; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1px solid #10b981; display: inline-block;">Selesai Dinilai</span>
@@ -467,13 +484,13 @@
             modal.style.display = 'flex';
 
             const fileTypes = {
-                'pas_foto': 'Pas Foto',
-                'ktp': 'KTP',
-                'ijazah': 'Ijazah',
-                'str': 'STR',
-                'sip': 'SIP',
-                'sertifikat_pelatihan': 'Sertifikat Pelatihan',
-                'sk_penempatan': 'SK Penempatan'
+                'file_ijazah': 'Ijazah Terakhir',
+                'file_transkrip': 'Transkrip Nilai',
+                'file_str': 'STR (Surat Tanda Registrasi)',
+                'file_praktik': 'SIP / SIKP / SIKB',
+                'file_sertifikat': 'Sertifikat Kompetensi',
+                'file_logbook': 'Log Book',
+                'file_form': 'Formulir (Ber-ttd)'
             };
 
             let buttonsHtml = '';
@@ -514,6 +531,51 @@
         function closePreview() {
             document.getElementById('modalPreview').style.display = 'none';
             document.getElementById('previewIframe').src = '';
+        }
+
+        function handleStatusChange(select, id) {
+            if (select.value === 'Needs Revision') {
+                document.getElementById('revisionId').value = id;
+                document.getElementById('revisionNotes').value = '';
+                document.getElementById('modalRevision').style.display = 'flex';
+                document.getElementById('revisionNotes').focus();
+            } else {
+                select.form.submit();
+            }
+        }
+
+        function closeRevisionModal() {
+            document.getElementById('modalRevision').style.display = 'none';
+            location.reload();
+        }
+
+        function submitRevision() {
+            const id = document.getElementById('revisionId').value;
+            const notes = document.getElementById('revisionNotes').value;
+            
+            if (!notes.trim()) {
+                alert("Catatan revisi tidak boleh kosong!");
+                return;
+            }
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/kredensial/${id}/revise`;
+            
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = '_token';
+            csrf.value = '{{ csrf_token() }}';
+            form.appendChild(csrf);
+            
+            const noteInput = document.createElement('input');
+            noteInput.type = 'hidden';
+            noteInput.name = 'notes';
+            noteInput.value = notes;
+            form.appendChild(noteInput);
+            
+            document.body.appendChild(form);
+            form.submit();
         }
         </script>
     </main>

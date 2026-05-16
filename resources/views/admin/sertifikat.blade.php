@@ -110,7 +110,7 @@
             </table>
 
             <h1 class="cert-title">SERTIFIKAT</h1>
-            <div class="cert-subtitle">KREDENSIAL TENAGA KESEHATAN</div>
+            <div class="cert-subtitle">ASESMEN KOMPETENSI TENAGA KESEHATAN</div>
 
             <p class="label-text">Diberikan Kepada :</p>
             <div class="name">{{ $data['nama_asesi'] }}</div>
@@ -118,7 +118,7 @@
 
             <p class="description">
                 Telah dinyatakan <span class="highlight">LULUS</span> dan memenuhi standar kompetensi dalam rangkaian proses 
-                Kredensial / Rekredensial pada unit kerja <span class="highlight">{{ $data['unit_kerja'] }}</span> di lingkungan 
+                asesmen kompetensi pada unit kerja <span class="highlight">{{ $data['unit_kerja'] }}</span> di lingkungan 
                 <strong>RSUD dr. Mohamad Soewandhie Surabaya</strong>.
             </p>
 

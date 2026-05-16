@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Asesi - RSUD Kredensial</title>
+  <title>Dashboard Asesi - E-ASKOMKRE</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -156,14 +156,14 @@
 
   <nav>
     <div class="logo">
-      <h1>RSUD KREDENSIAL</h1>
+      <h1>E-ASKOMKRE</h1>
       <p>Asesmen Kompetensi Digital</p>
     </div>
     <div class="user-menu">
       <div class="user-profile">
         <div>
           <span class="user-name">{{ auth()->user()->name }}</span>
-          <span class="user-role">ASESI / PERAWAT</span>
+          <span class="user-role">{{ auth()->user()->role === 'user' ? 'ASESI' : strtoupper(auth()->user()->role) }}</span>
         </div>
         <div class="avatar">👤</div>
       </div>
@@ -244,16 +244,22 @@
                 <td style="font-weight: 700;">{{ $k->created_at->format('d M Y') }}</td>
                 <td>
                   <div style="font-weight: 600;">{{ $k->jabatan }}</div>
-                  <div style="font-size: 12px; color: var(--gray);">{{ $k->data_lengkap['prof_unit_kerja'] ?? '-' }}</div>
+                  <div style="font-size: 12px; color: var(--gray);">{{ $k->data_lengkap['sub_profesi'] ?? '-' }}</div>
                 </td>
                 <td>
                   <span class="status-pill" style="background: {{ $lbl['bg'] }}; color: {{ $lbl['color'] }};">
                     {{ $lbl['text'] }}
                   </span>
+                  @if($k->status === 'Needs Revision')
+                    <div style="margin-top: 8px; padding: 10px; background: #fff1f2; border-radius: 10px; border: 1px solid #fda4af; font-size: 12px; line-height: 1.4;">
+                      <strong style="color: #be123c; display: block; margin-bottom: 2px;">⚠️ Catatan Revisi:</strong>
+                      <span style="color: #9f1239;">{{ $k->notes ?? 'Mohon periksa kembali data yang Anda kirim.' }}</span>
+                    </div>
+                  @endif
                 </td>
                 <td>
                   <div style="display: flex; gap: 8px; align-items: center;">
-                    <a href="#" class="btn-view">Detail →</a>
+                    <a href="{{ route('form', ['id' => $k->id]) }}" class="btn-view">Detail →</a>
                     @if($k->status === 'Approved')
                       <a href="{{ route('kredensial.sertifikat', $k->id) }}" class="btn-view" style="color: #c2410c; background: #fff7ed; padding: 4px 8px; border-radius: 6px; border: 1px solid #fdba74;">
                         📜 Sertifikat

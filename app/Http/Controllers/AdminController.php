@@ -21,7 +21,30 @@ class AdminController extends Controller
                 'Submitted' => \App\Models\Kredensial::where('status', 'Submitted')->count(),
                 'Under Review' => \App\Models\Kredensial::where('status', 'Under Review')->count(),
                 'Approved' => \App\Models\Kredensial::where('status', 'Approved')->count(),
-            ]
+            ],
+            'profesi_chart' => [
+                'Perawat' => \App\Models\Kredensial::where('data_lengkap->jenis_profesi', 'Perawat')->count(),
+                'Bidan' => \App\Models\Kredensial::where('data_lengkap->jenis_profesi', 'Bidan')->count(),
+            ],
+            'unit_chart' => \App\Models\Kredensial::all()
+                ->groupBy(function($k) {
+                    $sub = $k->data_lengkap['sub_profesi'] ?? '';
+                    return !empty($sub) ? $sub : 'Umum/Lainnya';
+                })
+                ->map->count()
+                ->toArray(),
+            'pendidikan_chart' => \App\Models\Kredensial::all()
+                ->groupBy(function($k) {
+                    return $k->data_lengkap['strata'] ?? 'Lainnya';
+                })
+                ->map->count()
+                ->toArray(),
+            'nikah_chart' => \App\Models\Kredensial::all()
+                ->groupBy(function($k) {
+                    return $k->data_lengkap['status_kawin'] ?? 'Belum Terdata';
+                })
+                ->map->count()
+                ->toArray()
         ];
         return view('admin.dashboard', compact('stats'));
     }
@@ -73,7 +96,7 @@ class AdminController extends Controller
             $sheet->setCellValue('C' . $row, $k->updated_at->format('d/m/Y H:i'));
             $sheet->setCellValue('D' . $row, $k->nama_asesi);
             $sheet->setCellValue('E' . $row, $k->jabatan);
-            $sheet->setCellValue('F' . $row, $k->data_lengkap['prof_unit_kerja'] ?? '-');
+            $sheet->setCellValue('F' . $row, $this->formatUnitName($k->data_lengkap['sub_profesi'] ?? '-'));
             $sheet->setCellValue('G' . $row, $k->status);
             
             $rekomendasi = $k->data_asesor['rekomendasi'] ?? '';
@@ -532,7 +555,7 @@ class AdminController extends Controller
         $data = [
             'nama_asesi' => $kredensial->nama_asesi,
             'jabatan' => $kredensial->jabatan,
-            'unit_kerja' => $kredensial->data_lengkap['prof_unit_kerja'] ?? '-',
+            'unit_kerja' => $this->formatUnitName($kredensial->data_lengkap['sub_profesi'] ?? '-'),
             'tanggal_selesai' => $kredensial->updated_at->format('d F Y'),
             'nomor_sertifikat' => 'KRED/' . date('Y/m/') . str_pad($kredensial->id, 4, '0', STR_PAD_LEFT),
             'nama_asesor' => $kredensial->data_lengkap['nama_asessor'] ?? ($kredensial->data_asesor['nama_asesor'] ?? 'Tim Kredensial'),
@@ -586,6 +609,54 @@ class AdminController extends Controller
     {
         \App\Models\Setting::set('certificate_background', null);
         return back()->with('success', 'Berhasil mereset template ke desain standar sistem');
+    }
+
+    public function destroy($id)
+    {
+        $kredensial = Kredensial::findOrFail($id);
+        $name = $kredensial->nama_asesi;
+        $kredensial->delete();
+
+        \App\Models\ActivityLog::log("Menghapus pengajuan milik {$name} (#{$id})");
+
+        return back()->with('success', "Pengajuan milik {$name} berhasil dihapus.");
+    }
+
+    public function revise(Request $request, $id)
+    {
+        $kredensial = Kredensial::findOrFail($id);
+        $kredensial->update([
+            'status' => 'Needs Revision',
+            'notes' => $request->notes
+        ]);
+
+        \App\Models\ActivityLog::log("Meminta revisi untuk pengajuan #{$id}. Catatan: {$request->notes}", $kredensial);
+
+        return back()->with('success', 'Status pengajuan diubah menjadi Perlu Revisi dan catatan telah dikirim ke asesi.');
+    }
+
+    private function formatUnitName($name)
+    {
+        if (empty($name) || $name === '-') return '-';
+        if (str_contains($name, ' - ')) return $name;
+
+        $n = strtoupper(trim($name));
+        
+        // Mapping untuk data lama agar tetap muncul departemennya
+        $maternal = ['EDELWEIS', 'KAMAR BERSALIN', 'PONEK', 'NICU'];
+        $inap = ['DAHLIA', 'TULIP', 'SAFIR', 'LAVENDER', 'FLAMBOYAN', 'ASTER', 'BOUGENVILE', 'ANGGREK', 'TERATAI', 'SERUNI'];
+        $intensive = ['IGD', 'ICU', 'ICCU', 'ISU', 'BURN UNIT', 'MICU'];
+        $rajal = ['HEMODIALISA', 'CAMELIA', 'RAJAL REGULER', 'EKSEKUTIF & MCU', 'RADIOTERAPI'];
+        $ibs = ['KAMAR OPERASI', 'RR-ANESTESI', 'IDIK'];
+
+        if (in_array($n, $maternal)) return "MATERNAL DAN NEONATAL - $n";
+        if (in_array($n, $inap)) return "RAWAT INAP - $n";
+        if (in_array($n, $intensive)) return "INTENSIVE CARE - $n";
+        if (in_array($n, $rajal)) return "RAWAT JALAN - $n";
+        if (in_array($n, $ibs)) return "IBS - $n";
+        if (str_contains($n, 'KLINIK')) return "KLINIK - " . str_replace('KLINIK', '', $n);
+
+        return $name;
     }
 }
 
