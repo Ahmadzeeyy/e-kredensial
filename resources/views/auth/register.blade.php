@@ -117,6 +117,11 @@
           </div>
 
           <div class="form-group">
+            <label>Alamat Email</label>
+            <input type="email" name="email" value="{{ old('email') }}" required placeholder="contoh@gmail.com">
+          </div>
+
+          <div class="form-group">
             <label>Password</label>
             <input type="password" name="password" required placeholder="Minimal 8 karakter">
           </div>

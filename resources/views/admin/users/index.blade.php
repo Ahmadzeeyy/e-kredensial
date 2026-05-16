@@ -22,6 +22,7 @@
                 <thead>
                     <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
                         <th style="padding: 16px 20px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Nama User</th>
+                        <th style="padding: 16px 20px; text-align: left; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Email</th>
                         <th style="padding: 16px 20px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Username</th>
                         <th style="padding: 16px 20px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Role</th>
                         <th style="padding: 16px 20px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Terdaftar</th>
@@ -30,10 +31,11 @@
                 </thead>
                 <tbody>
                     @foreach($users as $user)
-                    <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s; cursor: pointer;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'" ondblclick="openEditModal({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ addslashes($user->username) }}', '{{ $user->role }}')">
+                    <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s; cursor: pointer;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'" ondblclick="openEditModal({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ addslashes($user->username) }}', '{{ addslashes($user->email) }}', '{{ $user->role }}')">
                         <td style="padding: 16px 20px; text-align: left;">
                             <div style="font-size: 14px; font-weight: 600; color: #1e293b;">{{ $user->name }}</div>
                         </td>
+                        <td style="padding: 16px 20px; font-size: 14px; color: #64748b; text-align: left;">{{ $user->email ?? '-' }}</td>
                         <td style="padding: 16px 20px; font-size: 14px; color: #64748b; text-align: center;">{{ $user->username ?? '-' }}</td>
                         <td style="padding: 16px 20px; text-align: center;">
                             @php
@@ -87,6 +89,10 @@
                 <input type="text" name="username" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; outline: none;" required>
             </div>
             <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px;">Alamat Email</label>
+                <input type="email" name="email" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; outline: none;" required>
+            </div>
+            <div style="margin-bottom: 1.25rem;">
                 <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px;">Password Akun</label>
                 <input type="password" name="password" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; outline: none;" required>
             </div>
@@ -125,6 +131,10 @@
                 <input type="text" id="editUsername" name="username" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; outline: none;" required>
             </div>
             <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px;">Alamat Email</label>
+                <input type="email" id="editEmail" name="email" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; outline: none;" required>
+            </div>
+            <div style="margin-bottom: 1.25rem;">
                 <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px;">Password Baru (Opsional)</label>
                 <input type="password" name="password" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; outline: none;" placeholder="Kosongkan jika tidak ingin mengubah password">
             </div>
@@ -145,10 +155,11 @@
 </div>
 
 <script>
-function openEditModal(id, name, username, role) {
+function openEditModal(id, name, username, email, role) {
     document.getElementById('editForm').action = '/admin/users/' + id;
     document.getElementById('editName').value = name;
     document.getElementById('editUsername').value = username;
+    document.getElementById('editEmail').value = email;
     document.getElementById('editRole').value = role;
     document.getElementById('modalEdit').style.display = 'flex';
 }

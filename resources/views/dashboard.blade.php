@@ -252,7 +252,14 @@
                   </span>
                 </td>
                 <td>
-                  <a href="#" class="btn-view">Detail →</a>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <a href="#" class="btn-view">Detail →</a>
+                    @if($k->status === 'Approved')
+                      <a href="{{ route('kredensial.sertifikat', $k->id) }}" class="btn-view" style="color: #c2410c; background: #fff7ed; padding: 4px 8px; border-radius: 6px; border: 1px solid #fdba74;">
+                        📜 Sertifikat
+                      </a>
+                    @endif
+                  </div>
                 </td>
               </tr>
             @endforeach
