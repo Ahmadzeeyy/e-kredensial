@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>Formulir Kredensial – RSUD dr. M. Soewandhie</title>
+<title>Formulir E-ASKOMKRE – RSUD dr. M. Soewandhie</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -483,11 +483,121 @@
     font-size: 13px;
     color: #92400e;
     margin-top: 16px;
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    line-height: 1.5;
   }
+
+  /* ── SPLIT UPLOAD (SECTION 5) ── */
+  .split-upload {
+    display: flex;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    min-height: 450px;
+    border: 1px solid #eef2f6;
+  }
+  .upload-left {
+    flex: 1; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fcfdfe; border-right: 1px solid #f1f5f9; text-align: center;
+  }
+  .drop-zone {
+    width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 30px; transition: all 0.3s; cursor: pointer;
+  }
+  .drop-zone:hover { border-color: #3b82f6; background: #f8faff; }
+  .drop-zone.active { border-color: #3b82f6; background: #eff6ff; }
+  .upload-main-icon { font-size: 60px; color: #3b82f6; margin-bottom: 20px; transition: transform 0.3s; }
+  .drop-zone:hover .upload-main-icon { transform: translateY(-5px); }
+  .drop-text { font-size: 18px; font-weight: 500; color: #334155; margin-bottom: 8px; }
+  .drop-or { color: #94a3b8; font-size: 14px; margin: 10px 0; }
+  .btn-browse { background: #3b82f6; color: white; padding: 12px 40px; border-radius: 10px; font-weight: 600; font-size: 15px; border: none; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+  .upload-right { flex: 1.2; padding: 30px; background: white; max-height: 500px; overflow-y: auto; }
+  .file-list-header { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; text-transform: uppercase; letter-spacing: 0.5px; }
+  .file-row { display: flex; align-items: center; padding: 12px; border-radius: 12px; margin-bottom: 8px; transition: all 0.2s; border: 1px solid transparent; cursor: pointer; position: relative; }
+  .file-row:hover { background: #f8fafc; border-color: #e2e8f0; }
+  .file-row.active { background: #f0f7ff; border-color: #bfdbfe; }
+  .file-row.done { background: #f0fdf4; }
+  .file-type-icon { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #3b82f6; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; margin-right: 15px; background: white; }
+  .file-row.done .file-type-icon { border-color: #22c55e; color: #22c55e; }
+  .file-details { flex: 1; }
+  .file-name-label { display: block; font-size: 13px; font-weight: 600; color: #334155; }
+  .file-status-text { font-size: 11px; color: #94a3b8; }
+  .file-row.done .file-status-text { color: #22c55e; font-weight: 500; }
+  .file-check { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 14px; }
+  .file-row.done .file-check { color: #22c55e; }
+
+  /* ── PREMIUM SEARCHABLE SELECT ── */
+  .custom-select-wrapper {
+    position: relative;
+    user-select: none;
+  }
+  .select-trigger {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    transition: all 0.2s;
+    min-height: 48px;
+  }
+  .select-trigger:hover { border-color: var(--blue); }
+  .select-trigger.active { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,95,168,0.1); }
+  
+  .select-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: none;
+    overflow: hidden;
+    animation: slideDown 0.2s ease;
+  }
+  @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:none; } }
+  .select-dropdown.show { display: block; }
+  
+  .search-box {
+    padding: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #f8fafc;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+  }
+  
+  .options-list {
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  .opt-group {
+    padding: 10px 15px 5px;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--gray);
+    background: #fcfdfe;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .option {
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .option:hover { background: #f0f7ff; color: var(--blue); padding-left: 25px; }
+  .option.selected { background: var(--blue); color: #fff; }
+  .option.hidden { display: none; }
 </style>
 </head>
 <body>
@@ -497,7 +607,7 @@
   <div class="header-inner">
     <div class="header-logo">🏥</div>
     <div class="header-text">
-      <h1>Formulir Kredensial Asesmen Kompetensi Perawat</h1>
+      <h1>Formulir E-ASKOMKRE Asesmen Kompetensi</h1>
       <p>RSUD dr. Mohamad Soewandhie Surabaya</p>
     </div>
     <div style="margin-left: auto; display: flex; gap: 12px; align-items: center;">
@@ -519,12 +629,12 @@
 <!-- MAIN -->
 <main>
 
-  <!-- ═══ SECTION 1: DATA ASESI ═══ -->
+  <!-- ═══ SECTION 1: DATA PROFIL & PROFESI ═══ -->
   <div class="section active" id="sec1">
     <div class="section-header">
-      <div class="section-badge">FORM-01</div>
-      <div class="section-title">Data Pribadi Asesi</div>
-      <div class="section-desc">Isi data peserta yang akan menjalani asesmen kompetensi.</div>
+      <div class="section-badge">DATA UTAMA</div>
+      <div class="section-title">Data Profil & Identitas Profesi</div>
+      <div class="section-desc">Isi data pribadi, pendidikan, dan informasi keprofesian Anda secara lengkap.</div>
     </div>
 
     <div class="card">
@@ -536,8 +646,23 @@
           <div class="err-msg">Nama wajib diisi</div>
         </div>
         <div class="field">
-          <label>Tempat / Tanggal Lahir <span class="req">*</span></label>
-          <input type="text" id="ttl" placeholder="contoh: Surabaya, 01 Januari 1990">
+          <label>NIP / NIK <span class="req">*</span></label>
+          <input type="text" id="nip" placeholder="Masukkan NIP/NIK">
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field">
+          <label>No. KTP <span class="req">*</span></label>
+          <input type="text" id="ktp" placeholder="Masukkan No. KTP">
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field">
+          <label>Tempat Lahir <span class="req">*</span></label>
+          <input type="text" id="tempat_lahir" placeholder="contoh: Surabaya">
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field">
+          <label>Tanggal Lahir <span class="req">*</span></label>
+          <input type="date" id="tgl_lahir">
           <div class="err-msg">Wajib diisi</div>
         </div>
         <div class="field">
@@ -550,11 +675,34 @@
           </div>
         </div>
         <div class="field">
+          <label>Agama <span class="req">*</span></label>
+          <select id="agama">
+            <option value="">-- Pilih --</option>
+            <option>Islam</option><option>Kristen</option><option>Katolik</option>
+            <option>Hindu</option><option>Budha</option><option>Konghucu</option>
+          </select>
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field">
+          <label>Status Kawin <span class="req">*</span></label>
+          <select id="status_kawin">
+            <option value="">-- Pilih --</option>
+            <option>Kawin</option><option>Belum Kawin</option><option>Janda/Duda</option>
+          </select>
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field">
           <label>Kebangsaan <span class="req">*</span></label>
           <input type="text" id="kebangsaan" value="Indonesia">
         </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Data Kontak</div>
+      <div class="grid grid-2">
         <div class="field col-full">
-          <label>Alamat Rumah <span class="req">*</span></label>
+          <label>Alamat Rumah (Sesuai KTP) <span class="req">*</span></label>
           <textarea id="alamat" placeholder="Jl. contoh No. 10, Surabaya"></textarea>
           <div class="err-msg">Alamat wajib diisi</div>
         </div>
@@ -563,28 +711,47 @@
           <input type="text" id="kode_pos" placeholder="60xxx">
         </div>
         <div class="field">
-          <label>Nomor HP <span class="req">*</span></label>
+          <label>Telp. Rumah <span class="opt">(opsional)</span></label>
+          <input type="text" id="telp_rumah" placeholder="031-xxxxxx">
+        </div>
+        <div class="field">
+          <label>No. HP 1 (Aktif) <span class="req">*</span></label>
           <input type="text" id="no_hp" placeholder="08xxxxxxxxxx">
           <div class="err-msg">No. HP wajib diisi</div>
         </div>
         <div class="field">
-          <label>E-mail <span class="opt">(opsional)</span></label>
+          <label>No. HP 2 <span class="opt">(opsional)</span></label>
+          <input type="text" id="no_hp2" placeholder="08xxxxxxxxxx">
+        </div>
+        <div class="field col-full">
+          <label>E-mail Aktif <span class="req">*</span></label>
           <input type="email" id="email" placeholder="nama@email.com">
+          <div class="err-msg">Email wajib diisi</div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">Data Pendidikan Formal Terakhir</div>
+      <div class="card-title">Data Pendidikan</div>
       <div class="grid grid-2">
-        <div class="field">
-          <label>Nama Institusi Pendidikan <span class="req">*</span></label>
-          <input type="text" id="nama_sekolah" placeholder="Universitas Airlangga">
+        <div class="field col-full">
+          <label>Ijasah Terakhir <span class="req">*</span></label>
+          <input type="text" id="ijazah" placeholder="Ners / S1 Keperawatan">
           <div class="err-msg">Wajib diisi</div>
         </div>
         <div class="field">
-          <label>Jurusan / Program Studi <span class="req">*</span></label>
-          <input type="text" id="jurusan" placeholder="Ilmu Keperawatan">
+          <label>No. Ijasah Terakhir <span class="req">*</span></label>
+          <input type="text" id="no_ijazah" placeholder="Nomor Ijasah">
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field">
+          <label>Tahun Lulus <span class="req">*</span></label>
+          <input type="text" id="tahun_lulus" placeholder="2020">
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field col-full">
+          <label>Nama Institusi Pendidikan <span class="req">*</span></label>
+          <input type="text" id="nama_sekolah" placeholder="Universitas Airlangga">
           <div class="err-msg">Wajib diisi</div>
         </div>
         <div class="field">
@@ -595,20 +762,140 @@
             <option>Ners</option><option>S2</option><option>S3</option>
           </select>
         </div>
-        <div class="field">
-          <label>Tahun Lulus <span class="req">*</span></label>
-          <input type="text" id="tahun_lulus" placeholder="2020">
-          <div class="err-msg">Wajib diisi</div>
-        </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">Data Pekerjaan Sekarang</div>
+      <div class="card-title">Data Pekerjaan & Profesi</div>
       <div class="grid grid-2">
         <div class="field">
-          <label>Nama Lembaga / Rumah Sakit <span class="req">*</span></label>
-          <input type="text" id="nama_lembaga" value="RSUD dr. M. Soewandhie">
+          <label>Jenis Profesi <span class="req">*</span></label>
+          <select id="jenis_profesi" onchange="updateJenjangOptions()">
+            <option value="">-- Pilih --</option>
+            <option value="Perawat">Perawat</option>
+            <option value="Bidan">Bidan</option>
+          </select>
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field">
+          <label>Jenjang Karir / Profesi <span class="req">*</span></label>
+          <select id="jenjang_profesi" onchange="handleJenjangChange()">
+            <option value="">-- Pilih Jenis Profesi Dulu --</option>
+          </select>
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+
+        <!-- Container for PK II / PK III Sub-specialization -->
+        <div class="field" id="sub_profesi_container" style="display: none;">
+          <label>Area / Sub-Spesialisasi <span class="req">*</span></label>
+          <div class="custom-select-wrapper">
+            <div class="select-trigger" id="sub_profesi_trigger" onclick="toggleSubProfDropdown()">
+              <span id="sub_profesi_label">-- Pilih Area --</span>
+              <span style="font-size: 10px; color: var(--gray);">▼</span>
+            </div>
+            <div class="select-dropdown" id="sub_profesi_dropdown">
+              <div class="search-box">
+                <input type="text" id="sub_profesi_search" placeholder="🔍 Cari area atau unit..." oninput="filterSubProfesi(this.value)">
+              </div>
+              <div class="options-list" id="sub_profesi_options">
+                <div class="opt-group">MATERNAL DAN NEONATAL</div>
+                <div class="option" onclick="selectSubProf('MATERNAL DAN NEONATAL - EDELWEIS')">EDELWEIS</div>
+                <div class="option" onclick="selectSubProf('MATERNAL DAN NEONATAL - KAMAR BERSALIN')">KAMAR BERSALIN</div>
+                <div class="option" onclick="selectSubProf('MATERNAL DAN NEONATAL - PONEK')">PONEK</div>
+                <div class="option" onclick="selectSubProf('MATERNAL DAN NEONATAL - NICU')">NICU</div>
+                
+                <div class="opt-group">RAWAT INAP</div>
+                <div class="option" onclick="selectSubProf('RAWAT INAP - DAHLIA')">DAHLIA</div>
+                <div class="option" onclick="selectSubProf('RAWAT INAP - TULIP')">TULIP</div>
+                <div class="option" onclick="selectSubProf('RAWAT INAP - SAFIR')">SAFIR</div>
+                <div class="option" onclick="selectSubProf('RAWAT INAP - LAVENDER')">LAVENDER</div>
+                <div class="option" onclick="selectSubProf('RAWAT INAP - FLAMBOYAN')">FLAMBOYAN</div>
+                <div class="option" onclick="selectSubProf('RAWAT INAP - ASTER')">ASTER</div>
+                <div class="option" onclick="selectSubProf('RAWAT INAP - BOUGENVILE')">BOUGENVILE</div>
+                <div class="option" onclick="selectSubProf('RAWAT INAP - ANGGREK')">ANGGREK</div>
+                <div class="option" onclick="selectSubProf('RAWAT INAP - TERATAI')">TERATAI</div>
+                <div class="option" onclick="selectSubProf('RAWAT INAP - SERUNI')">SERUNI</div>
+                
+                <div class="opt-group">INTENSIVE CARE</div>
+                <div class="option" onclick="selectSubProf('INTENSIVE CARE - IGD')">IGD</div>
+                <div class="option" onclick="selectSubProf('INTENSIVE CARE - ICU')">ICU</div>
+                <div class="option" onclick="selectSubProf('INTENSIVE CARE - ICCU')">ICCU</div>
+                <div class="option" onclick="selectSubProf('INTENSIVE CARE - ISU')">ISU</div>
+                <div class="option" onclick="selectSubProf('INTENSIVE CARE - BURN UNIT')">BURN UNIT</div>
+                <div class="option" onclick="selectSubProf('INTENSIVE CARE - MICU')">MICU</div>
+                
+                <div class="opt-group">RAWAT JALAN</div>
+                <div class="option" onclick="selectSubProf('RAWAT JALAN - HEMODIALISA')">Hemodialisa</div>
+                <div class="option" onclick="selectSubProf('RAWAT JALAN - CAMELIA')">Camelia</div>
+                <div class="option" onclick="selectSubProf('RAWAT JALAN - RAJAL REGULER')">Rajal Reguler</div>
+                <div class="option" onclick="selectSubProf('RAWAT JALAN - EKSEKUTIF & MCU')">Eksekutif & MCU</div>
+                <div class="option" onclick="selectSubProf('RAWAT JALAN - RADIOTERAPI')">Radioterapi</div>
+                
+                <div class="opt-group">KLINIK REGULER</div>
+                <div class="option" onclick="selectSubProf('KLINIK - ANAK')">Anak</div>
+                <div class="option" onclick="selectSubProf('KLINIK - ANASTESI')">Anastesi</div>
+                <div class="option" onclick="selectSubProf('KLINIK - BEDAH UMUM')">Bedah Umum</div>
+                <div class="option" onclick="selectSubProf('KLINIK - BEDAH UMUM SORE')">Bedah umum sore</div>
+                <div class="option" onclick="selectSubProf('KLINIK - BEDAH DIGESTIF')">Bedah Digestif</div>
+                <div class="option" onclick="selectSubProf('KLINIK - BEDAH MULUT')">Bedah Mulut</div>
+                <div class="option" onclick="selectSubProf('KLINIK - BEDAH ONKOLOGI')">Bedah Onkologi</div>
+                <div class="option" onclick="selectSubProf('KLINIK - BEDAH PLASTIK')">Bedah Plastik</div>
+                <div class="option" onclick="selectSubProf('KLINIK - BEDAH SYARAF')">Bedah Syaraf</div>
+                <div class="option" onclick="selectSubProf('KLINIK - BEDAH TKV')">Bedah TKV</div>
+                <div class="option" onclick="selectSubProf('KLINIK - ECHO DAN TREEDMIL')">Echo dan treedmil</div>
+                <div class="option" onclick="selectSubProf('KLINIK - GERIATRI')">Geriatri</div>
+                <div class="option" onclick="selectSubProf('KLINIK - GIZI')">Gizi</div>
+                <div class="option" onclick="selectSubProf('KLINIK - HEMATOLOGI ONKOLOGI MEDIK ANAK')">Hematologi onkologi medik anak</div>
+                <div class="option" onclick="selectSubProf('KLINIK - JANTUNG')">Jantung</div>
+                <div class="option" onclick="selectSubProf('KLINIK - JANTUNG SORE')">Jantung Sore</div>
+                <div class="option" onclick="selectSubProf('KLINIK - KESEHATAN JIWA')">Kesehatan jiwa</div>
+                <div class="option" onclick="selectSubProf('KLINIK - KANDUNGAN')">Kandungan</div>
+                <div class="option" onclick="selectSubProf('KLINIK - KB')">KB</div>
+                <div class="option" onclick="selectSubProf('KLINIK - KULIT KELAMIN')">Kulit Kelamin</div>
+                <div class="option" onclick="selectSubProf('KLINIK - MATA')">Mata</div>
+                <div class="option" onclick="selectSubProf('KLINIK - NIFAS')">Nifas</div>
+                <div class="option" onclick="selectSubProf('KLINIK - ORTHOPEDI')">Orthopedi</div>
+                <div class="option" onclick="selectSubProf('KLINIK - ONKOLOGI TORAKS')">Onkologi Toraks</div>
+                <div class="option" onclick="selectSubProf('KLINIK - ONKOLOGI THT')">Onkologi THT</div>
+                <div class="option" onclick="selectSubProf('KLINIK - PARU')">Paru</div>
+                <div class="option" onclick="selectSubProf('KLINIK - PENYAKIT DALAM')">Penyakit dalam</div>
+                
+                <div class="opt-group">INSTALASI BEDAH SENTRAL</div>
+                <div class="option" onclick="selectSubProf('IBS - KAMAR OPERASI')">Kamar Operasi</div>
+                <div class="option" onclick="selectSubProf('IBS - RR-ANESTESI')">RR-Anestesi</div>
+                <div class="option" onclick="selectSubProf('IBS - IDIK')">IDIK</div>
+                
+                <div class="opt-group">Lainnya</div>
+                <div class="option" onclick="selectSubProf('Lainnya')">Lainnya (Tulis Manual)</div>
+              </div>
+            </div>
+            <input type="hidden" id="sub_profesi" value="">
+          </div>
+          <!-- Manual Input for "Lainnya" -->
+          <div id="manual_sub_profesi_container" style="display: none; margin-top: 10px;">
+            <input type="text" id="sub_profesi_manual" placeholder="Tuliskan nama area/unit Anda di sini..." style="width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 12px; outline: none; font-size: 14px;">
+          </div>
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+
+        <div class="field">
+          <label>No. STR <span class="req">*</span></label>
+          <input type="text" id="no_str" placeholder="Nomor STR">
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field">
+          <label>Tanggal Berlaku STR <span class="req">*</span></label>
+          <input type="text" id="berlaku_str" placeholder="dd/mm/yyyy atau Seumur Hidup">
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field">
+          <label>Masa Kerja (Tahun) <span class="req">*</span></label>
+          <input type="number" id="masa_kerja" placeholder="0">
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field">
+          <label>Status Kepegawaian <span class="req">*</span></label>
+          <input type="text" id="status_pegawai" placeholder="PNS / Non-PNS / Kontrak">
           <div class="err-msg">Wajib diisi</div>
         </div>
         <div class="field">
@@ -617,10 +904,78 @@
           <div class="err-msg">Wajib diisi</div>
         </div>
         <div class="field col-full">
+          <label>Nama Lembaga / Rumah Sakit <span class="req">*</span></label>
+          <input type="text" id="nama_lembaga" value="RSUD dr. M. Soewandhie">
+          <div class="err-msg">Wajib diisi</div>
+        </div>
+        <div class="field col-full">
           <label>Alamat Kantor</label>
           <input type="text" id="alamat_kantor" value="Jl. Dharmahusada No.178, Surabaya">
         </div>
       </div>
+    </div>
+
+    <!-- IV. DATA PELATIHAN -->
+    <style>
+      .dynamic-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+      .dynamic-table th { background: #f8fafc; text-align: left; padding: 12px; font-size: 12px; font-weight: 700; color: #64748b; border-bottom: 2px solid #e2e8f0; }
+      .dynamic-table td { padding: 8px; border-bottom: 1px solid #f1f5f9; }
+      .dynamic-table input { width: 100%; padding: 8px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: 13px; outline: none; }
+      .dynamic-table input:focus { border-color: var(--blue); }
+      .btn-add-row { margin-top: 15px; background: #eef2ff; color: #4f46e5; border: 1px dashed #c7d2fe; padding: 10px; border-radius: 8px; width: 100%; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+      .btn-add-row:hover { background: #e0e7ff; border-style: solid; }
+      .btn-del-row { color: #ef4444; cursor: pointer; font-weight: 800; padding: 5px; }
+    </style>
+    <div class="card">
+      <div class="card-title">DATA PELATIHAN</div>
+      <table class="dynamic-table" id="tablePelatihan">
+        <thead>
+          <tr>
+            <th>NAMA PELATIHAN</th>
+            <th>TAHUN</th>
+            <th>JPL</th>
+            <th>SKP</th>
+            <th width="40"></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button class="btn-add-row" onclick="addRow('tablePelatihan')">+ Tambah Pelatihan</button>
+    </div>
+
+    <!-- V. DATA RIWAYAT IKI -->
+    <div class="card">
+      <div class="card-title">DATA RIWAYAT IKI</div>
+      <table class="dynamic-table" id="tableIKI">
+        <thead>
+          <tr>
+            <th>TAHUN</th>
+            <th>BULAN</th>
+            <th>NILAI</th>
+            <th width="40"></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button class="btn-add-row" onclick="addRow('tableIKI')">+ Tambah Riwayat IKI</button>
+    </div>
+
+    <!-- VI. DATA ASSESMENT -->
+    <div class="card">
+      <div class="card-title">DATA ASSESMENT KOMPETENSI KEPERAWATAN</div>
+      <table class="dynamic-table" id="tableAsesmen">
+        <thead>
+          <tr>
+            <th>TANGGAL PENGAJUAN</th>
+            <th>JENJANG PENGAJUAN</th>
+            <th>JADWAL ASESMEN</th>
+            <th>HASIL ASESMEN</th>
+            <th width="40"></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button class="btn-add-row" onclick="addRow('tableAsesmen')">+ Tambah Data Asesmen</button>
     </div>
 
     <!-- ═══ FORM-01: KOMPETENSI ═══ -->
@@ -634,40 +989,61 @@
       @foreach($competencyList as $catTitle => $items)
         @php $idx++; @endphp
         <div class="acc-item" id="comp_{{ $idx }}">
-          <div class="acc-header" onclick="toggleComp({{ $idx }})" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #f8fafc; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--border);">
+          <div class="acc-header" onclick="let c = this.nextElementSibling; let isH = (c.style.display === 'none' || c.style.display === ''); c.style.display = isH ? 'block' : 'none'; this.querySelector('.arrow').style.transform = isH ? 'rotate(180deg)' : 'rotate(0deg)';" style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #f8fafc; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--border);">
             <div style="display: flex; align-items: center; gap: 12px;">
               <span style="background: var(--blue); color: white; width: 24px; height: 24px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">{{ $idx }}</span>
               <span style="font-weight: 700; font-size: 14px; color: var(--navy);">{{ $catTitle }}</span>
             </div>
-            <span class="arrow" style="font-size: 12px; color: var(--gray);">▼</span>
+            <span class="arrow" style="font-size: 12px; color: var(--gray); transition: transform 0.2s;">▼</span>
           </div>
-          <div class="acc-content" style="display: none; padding: 10px 0 20px;">
-            <table style="width: 100%; border-collapse: collapse;">
+          <div class="acc-content" style="display: none; padding: 15px 20px 25px;">
+            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
               <thead>
-                <tr style="text-align: left; font-size: 11px; color: var(--gray); text-transform: uppercase;">
-                  <th style="padding: 12px; border-bottom: 2px solid #f1f5f9;">Unit Kompetensi</th>
-                  <th style="padding: 12px; border-bottom: 2px solid #f1f5f9;" width="40%">Keterangan</th>
+                <tr style="text-align: left; font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 1px;">
+                  <th style="padding: 12px 15px; border-bottom: 2px solid #f1f5f9; width: 60%;">Unit Kompetensi</th>
+                  <th style="padding: 12px 15px; border-bottom: 2px solid #f1f5f9;">Keterangan / Pengalaman</th>
                 </tr>
               </thead>
               <tbody>
+                @php
+                  $principles = ['otonomi', 'beneficience', 'justice', 'nonmaleficience', 'veracity', 'fidelity', 'confidentialty', 'accountability'];
+                @endphp
                 @foreach($items as $key => $val)
                   @if(is_array($val))
-                    <tr style="background: #fdfdfd;">
-                      <td colspan="2" style="padding: 10px 12px; font-weight: 700; font-size: 12px; color: var(--blue); border-bottom: 1px solid #f1f5f9;">{{ $val['label'] }}</td>
+                    <tr style="background: #f8fafc;">
+                      <td colspan="2" style="padding: 12px 15px; font-weight: 800; font-size: 12px; color: var(--blue); border-bottom: 1px solid #e2e8f0; text-transform: uppercase; letter-spacing: 0.5px;">
+                        {{ $val['label'] }}
+                      </td>
                     </tr>
                     @foreach($val['items'] as $subKey => $subVal)
+                      @php
+                        $formattedVal = $subVal;
+                        foreach($principles as $p) {
+                          $formattedVal = preg_replace('/\b'.preg_quote($p).'\b/i', '<strong>$0</strong>', $formattedVal);
+                        }
+                      @endphp
                       <tr>
-                        <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px;">{{ $subVal }}</td>
-                        <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;">
-                          <textarea class="comp-input" data-key="{{ $subKey }}" placeholder="Tuliskan pengalaman..." style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-family: inherit; min-height: 40px;"></textarea>
+                        <td style="padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 13.5px; line-height: 1.6; color: #334155; vertical-align: top;">
+                          {!! $formattedVal !!}
+                        </td>
+                        <td style="padding: 15px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">
+                          <textarea class="comp-input" data-key="{{ $subKey }}" placeholder="Tuliskan pengalaman atau keterangan..." style="width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 12.5px; font-family: inherit; min-height: 60px; resize: vertical; transition: border-color 0.2s; background: #fff;"></textarea>
                         </td>
                       </tr>
                     @endforeach
                   @else
-                    <tr>
-                      <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px;">{{ $val }}</td>
-                      <td style="padding: 12px; border-bottom: 1px solid #f1f5f9;">
-                        <textarea class="comp-input" data-key="{{ $key }}" placeholder="Tuliskan pengalaman..." style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-family: inherit; min-height: 40px;"></textarea>
+                    @php
+                      $formattedVal = $val;
+                      foreach($principles as $p) {
+                        $formattedVal = preg_replace('/\b'.preg_quote($p).'\b/i', '<strong>$0</strong>', $formattedVal);
+                      }
+                    @endphp
+                    <tr style="background: #f8fafc;">
+                      <td style="padding: 15px; border-bottom: 1px solid #e2e8f0; font-size: 13.5px; line-height: 1.6; color: var(--blue); font-weight: 800; vertical-align: top; text-transform: uppercase; letter-spacing: 0.5px;">
+                        {!! $formattedVal !!}
+                      </td>
+                      <td style="padding: 15px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">
+                        <textarea class="comp-input" data-key="{{ $key }}" placeholder="Tuliskan pengalaman atau keterangan..." style="width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 12.5px; font-family: inherit; min-height: 60px; resize: vertical; transition: border-color 0.2s; background: #fff;"></textarea>
                       </td>
                     </tr>
                   @endif
@@ -808,330 +1184,11 @@
     </div>
   </div>
 
-  <!-- ═══ SECTION 5: IDENTITAS PROFESI ═══ -->
+
+
+
+  <!-- ═══ SECTION 5: KELENGKAPAN DOKUMEN ═══ -->
   <div class="section" id="sec5">
-    <div class="section-header">
-      <div class="section-badge">DATA PROFESI</div>
-      <div class="section-title">Data Identitas Profesi</div>
-      <div class="section-desc">Isi data pendidikan terakhir dan identitas keprofesian Anda.</div>
-    </div>
-
-    <!-- I. DATA PROFIL -->
-    <div class="card">
-      <div class="card-title">I. DATA PROFIL</div>
-      <div class="grid grid-2">
-        <div class="field col-full">
-          <label>Nama Lengkap</label>
-          <input type="text" id="prof_nama" readonly style="background: #f1f5f9;">
-        </div>
-        <div class="field">
-          <label>NIP / NIK</label>
-          <input type="text" id="prof_nip" placeholder="Masukkan NIP/NIK">
-        </div>
-        <div class="field">
-          <label>No. KTP</label>
-          <input type="text" id="prof_ktp" placeholder="Masukkan No. KTP">
-        </div>
-        <div class="field">
-          <label>Tempat Lahir</label>
-          <input type="text" id="prof_tempat_lahir" readonly style="background: #f1f5f9;">
-        </div>
-        <div class="field">
-          <label>Tanggal Lahir</label>
-          <input type="text" id="prof_tgl_lahir" readonly style="background: #f1f5f9;">
-        </div>
-        <div class="field">
-          <label>Jenis Kelamin</label>
-          <input type="text" id="prof_jk" readonly style="background: #f1f5f9;">
-        </div>
-        <div class="field">
-          <label>Agama</label>
-          <select id="prof_agama">
-            <option value="">-- Pilih --</option>
-            <option>Islam</option><option>Kristen</option><option>Katolik</option>
-            <option>Hindu</option><option>Budha</option><option>Konghucu</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Status Kawin</label>
-          <select id="prof_status_kawin">
-            <option value="">-- Pilih --</option>
-            <option>Kawin</option><option>Belum Kawin</option><option>Janda/Duda</option>
-          </select>
-        </div>
-        <div class="field col-full">
-          <label>Alamat Lengkap (Sesuai KTP)</label>
-          <textarea id="prof_alamat_ktp" readonly style="background: #f1f5f9; min-height: 80px;"></textarea>
-        </div>
-        <div class="field">
-          <label>Telp. Rumah</label>
-          <input type="text" id="prof_telp_rumah" placeholder="031-xxxxxx">
-        </div>
-        <div class="field">
-          <label>No. HP 1 (Aktif)</label>
-          <input type="text" id="prof_hp1" readonly style="background: #f1f5f9;">
-        </div>
-        <div class="field">
-          <label>No. HP 2 (Opsional)</label>
-          <input type="text" id="prof_hp2" placeholder="08xxxxxxxxxx">
-        </div>
-        <div class="field">
-          <label>Alamat Email Aktif</label>
-          <input type="text" id="prof_email_aktif" readonly style="background: #f1f5f9;">
-        </div>
-      </div>
-    </div>
-
-    <!-- II. DATA PENDIDIKAN -->
-    <div class="card">
-      <div class="card-title">II. DATA PENDIDIKAN</div>
-      <div class="grid grid-2">
-        <div class="field col-full">
-          <label>Ijasah Terakhir</label>
-          <input type="text" id="prof_ijazah_terakhir" placeholder="Ners / S1 Keperawatan">
-        </div>
-        <div class="field">
-          <label>No. Ijasah Terakhir</label>
-          <input type="text" id="prof_no_ijazah" placeholder="Nomor Ijasah">
-        </div>
-        <div class="field">
-          <label>Tahun Ijasah Terakhir</label>
-          <input type="text" id="prof_tahun_ijazah" placeholder="YYYY">
-        </div>
-        <div class="field col-full">
-          <label>Nama Institusi Pendidikan Terakhir</label>
-          <input type="text" id="prof_institusi" placeholder="Nama Universitas / Institusi">
-        </div>
-      </div>
-    </div>
-
-    <!-- III. DATA PEKERJAAN -->
-    <div class="card">
-      <div class="card-title">III. DATA PEKERJAAN</div>
-      <div class="grid grid-2">
-        <div class="field">
-          <label>Jenis Profesi</label>
-          <input type="text" id="prof_jenis" placeholder="Perawat">
-        </div>
-        <div class="field">
-          <label>Jenjang Profesi</label>
-          <input type="text" id="prof_jenjang" placeholder="Perawat Klinik II">
-        </div>
-        <div class="field">
-          <label>No. STR</label>
-          <input type="text" id="prof_no_str" placeholder="Nomor STR">
-        </div>
-        <div class="field">
-          <label>Tanggal Berlaku STR</label>
-          <input type="text" id="prof_berlaku_str" placeholder="dd/mm/yyyy atau Seumur Hidup">
-        </div>
-        <div class="field">
-          <label>Unit Kerja Saat Ini</label>
-          <input type="text" id="prof_unit_kerja" placeholder="IGD / ICU / Ruang Rawat Inap">
-        </div>
-        <div class="field">
-          <label>Masa Kerja (Tahun)</label>
-          <input type="number" id="prof_masa_kerja" placeholder="0">
-        </div>
-        <div class="field col-full">
-          <label>Status Kepegawaian</label>
-          <input type="text" id="prof_status_pegawai" placeholder="PNS / Non-PNS / Kontrak">
-        </div>
-      </div>
-    </div>
-
-    <!-- IV. DATA PELATIHAN -->
-    <style>
-      .dynamic-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-      .dynamic-table th { background: #f8fafc; text-align: left; padding: 12px; font-size: 12px; font-weight: 700; color: #64748b; border-bottom: 2px solid #e2e8f0; }
-      .dynamic-table td { padding: 8px; border-bottom: 1px solid #f1f5f9; }
-      .dynamic-table input { width: 100%; padding: 8px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: 13px; outline: none; }
-      .dynamic-table input:focus { border-color: var(--blue); }
-      .btn-add-row { margin-top: 15px; background: #eef2ff; color: #4f46e5; border: 1px dashed #c7d2fe; padding: 10px; border-radius: 8px; width: 100%; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-      .btn-add-row:hover { background: #e0e7ff; border-style: solid; }
-      .btn-del-row { color: #ef4444; cursor: pointer; font-weight: 800; padding: 5px; }
-    </style>
-    <div class="card">
-      <div class="card-title">IV. DATA PELATIHAN</div>
-      <table class="dynamic-table" id="tablePelatihan">
-        <thead>
-          <tr>
-            <th>NAMA PELATIHAN</th>
-            <th>TAHUN</th>
-            <th>JPL</th>
-            <th>SKP</th>
-            <th width="40"></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <button class="btn-add-row" onclick="addRow('tablePelatihan')">+ Tambah Pelatihan</button>
-    </div>
-
-    <!-- V. DATA RIWAYAT IKI -->
-    <div class="card">
-      <div class="card-title">V. DATA RIWAYAT IKI</div>
-      <table class="dynamic-table" id="tableIKI">
-        <thead>
-          <tr>
-            <th>TAHUN</th>
-            <th>BULAN</th>
-            <th>NILAI</th>
-            <th width="40"></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <button class="btn-add-row" onclick="addRow('tableIKI')">+ Tambah Riwayat IKI</button>
-    </div>
-
-    <!-- VI. DATA ASSESMENT -->
-    <div class="card">
-      <div class="card-title">VI. DATA ASSESMENT KOMPETENSI KEPERAWATAN</div>
-      <table class="dynamic-table" id="tableAsesmen">
-        <thead>
-          <tr>
-            <th>TANGGAL PENGAJUAN</th>
-            <th>JENJANG PENGAJUAN</th>
-            <th>JADWAL ASESMEN</th>
-            <th>HASIL ASESMEN</th>
-            <th width="40"></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <button class="btn-add-row" onclick="addRow('tableAsesmen')">+ Tambah Data Asesmen</button>
-    </div>
-
-    <div class="nav-bar">
-      <button class="btn btn-secondary" onclick="prevSection(5)">← Kembali</button>
-      <button class="btn btn-primary" onclick="nextSection(5)">Selanjutnya →</button>
-    </div>
-  </div>
-
-  <!-- ═══ SECTION 6: KELENGKAPAN DOKUMEN ═══ -->
-  <style>
-    .split-upload {
-      display: flex;
-      background: white;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      min-height: 450px;
-      border: 1px solid #eef2f6;
-    }
-    
-    /* Left Side: Drop Area */
-    .upload-left {
-      flex: 1;
-      padding: 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #fcfdfe;
-      border-right: 1px solid #f1f5f9;
-      text-align: center;
-    }
-    .drop-zone {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border: 2px dashed #cbd5e1;
-      border-radius: 16px;
-      padding: 30px;
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-    .drop-zone:hover { border-color: #3b82f6; background: #f8faff; }
-    .drop-zone.active { border-color: #3b82f6; background: #eff6ff; }
-    
-    .upload-main-icon {
-      font-size: 60px;
-      color: #3b82f6;
-      margin-bottom: 20px;
-      transition: transform 0.3s;
-    }
-    .drop-zone:hover .upload-main-icon { transform: translateY(-5px); }
-    
-    .drop-text { font-size: 18px; font-weight: 500; color: #334155; margin-bottom: 8px; }
-    .drop-or { color: #94a3b8; font-size: 14px; margin: 10px 0; }
-    .btn-browse {
-      background: #3b82f6;
-      color: white;
-      padding: 12px 40px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 15px;
-      border: none;
-      box-shadow: 0 4px 12px rgba(59,130,246,0.3);
-    }
-    
-    /* Right Side: File List */
-    .upload-right {
-      flex: 1.2;
-      padding: 30px;
-      background: white;
-      max-height: 500px;
-      overflow-y: auto;
-    }
-    .file-list-header {
-      font-size: 14px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #f1f5f9;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .file-row {
-      display: flex;
-      align-items: center;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 8px;
-      transition: all 0.2s;
-      border: 1px solid transparent;
-      cursor: pointer;
-      position: relative;
-    }
-    .file-row:hover { background: #f8fafc; border-color: #e2e8f0; }
-    .file-row.active { background: #f0f7ff; border-color: #bfdbfe; }
-    .file-row.done { background: #f0fdf4; }
-    
-    .file-type-icon {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      border: 1px solid #3b82f6;
-      color: #3b82f6;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px; font-weight: 800;
-      margin-right: 15px;
-      background: white;
-    }
-    .file-row.done .file-type-icon { border-color: #22c55e; color: #22c55e; }
-    
-    .file-details { flex: 1; }
-    .file-name-label { display: block; font-size: 13px; font-weight: 600; color: #334155; }
-    .file-status-text { font-size: 11px; color: #94a3b8; }
-    .file-row.done .file-status-text { color: #22c55e; font-weight: 500; }
-    
-    .file-check {
-      width: 20px; height: 20px;
-      display: flex; align-items: center; justify-content: center;
-      color: #cbd5e1;
-      font-size: 14px;
-    }
-    .file-row.done .file-check { color: #22c55e; }
-  </style>
-
-  <!-- ═══ SECTION 6: KELENGKAPAN DOKUMEN ═══ -->
-  <div class="section" id="sec6">
     <div class="section-header">
       <div class="section-badge">UPLOAD CENTER</div>
       <div class="section-title">Kelengkapan Dokumen</div>
@@ -1182,13 +1239,13 @@
     </div>
 
     <div class="nav-bar">
-      <button class="btn btn-secondary" onclick="prevSection(6)">← Kembali</button>
-      <button class="btn btn-primary" onclick="nextSection(6)">Review & Unduh →</button>
+      <button class="btn btn-secondary" onclick="prevSection(5)">← Kembali</button>
+      <button class="btn btn-primary" onclick="nextSection(5)">Review & Kirim →</button>
     </div>
   </div>
 
-  <!-- ═══ SECTION 7: REVIEW ═══ -->
-  <div class="section" id="sec7">
+  <!-- ═══ SECTION 6: REVIEW ═══ -->
+  <div class="section" id="sec6">
     <div class="section-header">
       <div class="section-badge">FINAL STEP</div>
       <div class="section-title">Konfirmasi & Kirim</div>
@@ -1208,7 +1265,7 @@
     </div>
 
     <div class="nav-bar" style="margin-top: 40px;">
-      <button class="btn btn-secondary" onclick="prevSection(7)">← Kembali Edit</button>
+      <button class="btn btn-secondary" onclick="prevSection(6)">← Kembali Edit</button>
       <div></div>
     </div>
   </div>
@@ -1221,6 +1278,113 @@
 <script>
 const v = (id) => document.getElementById(id)?.value || "";
 let currentSlot = 'file_ijazah';
+
+  // Pre-fill data if editing
+  @if(isset($existing))
+    const EXISTING_DATA = @json($existing->data_lengkap);
+    const EXISTING_ID = "{{ $existing->id }}";
+    const IS_APPROVED = {{ $existing->status === 'Approved' ? 'true' : 'false' }};
+  @else
+    const EXISTING_DATA = null;
+    const EXISTING_ID = null;
+    const IS_APPROVED = false;
+  @endif
+
+  function fillExistingData() {
+    if (!EXISTING_DATA) return;
+
+    // Basic fields
+    const fields = [
+      "nama_asesi", "nip", "ktp", "tempat_lahir", "tgl_lahir", "kebangsaan", 
+      "agama", "status_kawin", "alamat", "kode_pos", "telp_rumah", "no_hp", "no_hp2", "email",
+      "ijazah", "no_ijazah", "tahun_lulus", "nama_sekolah", "jurusan", "strata",
+      "jenis_profesi", "jenjang_profesi", "no_str", "berlaku_str", 
+      "masa_kerja", "status_pegawai", "jabatan", "nama_lembaga", "alamat_kantor",
+      "nama_asessor", "no_reg_asesor", "kode_unit", "judul_unit", "tanggal", "waktu", "tempat",
+      "catatan_penolakan", "catatan_saran"
+    ];
+
+    fields.forEach(f => {
+      const el = document.getElementById(f);
+      if (el && EXISTING_DATA[f]) {
+        el.value = EXISTING_DATA[f];
+      }
+    });
+
+    // Update jenjang options first
+    updateJenjangOptions();
+    const jenjangEl = document.getElementById('jenjang_profesi');
+    if (jenjangEl && EXISTING_DATA.jenjang_profesi) {
+      jenjangEl.value = EXISTING_DATA.jenjang_profesi;
+      handleJenjangChange();
+    }
+
+    // Handle JK
+    if (EXISTING_DATA.jenis_kelamin) {
+      const jk = document.querySelector(`input[name="jk"][value="${EXISTING_DATA.jenis_kelamin}"]`);
+      if (jk) jk.checked = true;
+    }
+
+    // Handle Sub Profesi (Custom Select)
+    if (EXISTING_DATA.sub_profesi) {
+      selectSubProf(EXISTING_DATA.sub_profesi, true);
+      if (EXISTING_DATA.sub_profesi === 'Lainnya' && EXISTING_DATA.sub_profesi_manual) {
+        document.getElementById('sub_profesi_manual').value = EXISTING_DATA.sub_profesi_manual;
+      }
+    }
+
+    // Handle Competency
+    if (EXISTING_DATA.data_kompetensi) {
+      Object.keys(EXISTING_DATA.data_kompetensi).forEach(key => {
+        const tx = document.querySelector(`.comp-input[data-key="${key}"]`);
+        if (tx) tx.value = EXISTING_DATA.data_kompetensi[key];
+      });
+    }
+
+    // Handle Tables
+    if (EXISTING_DATA.pelatihan) fillTable('tablePelatihan', EXISTING_DATA.pelatihan);
+    if (EXISTING_DATA.iki) fillTable('tableIKI', EXISTING_DATA.iki);
+    if (EXISTING_DATA.asesmen_history) fillTable('tableAsesmen', EXISTING_DATA.asesmen_history);
+
+    // Handle Consent & Umpan
+    if (EXISTING_DATA.consent) {
+      EXISTING_DATA.consent.forEach((val, i) => setYN('consent', i, val));
+    }
+    if (EXISTING_DATA.umpan_balik) {
+      EXISTING_DATA.umpan_balik.forEach((val, i) => setYN('umpan', i, val));
+    }
+
+    // Disable editing if Approved
+    if (IS_APPROVED) {
+      document.querySelectorAll('input, select, textarea, button').forEach(el => {
+        if (!el.id.includes('nextBtn') && !el.id.includes('prevBtn') && el.id !== 'downloadBtn') {
+          el.disabled = true;
+          el.style.pointerEvents = 'none';
+          el.style.opacity = '0.7';
+        }
+      });
+      // Special case for custom select
+      document.getElementById('sub_profesi_trigger').onclick = null;
+      document.getElementById('downloadBtn').innerHTML = "📄 Lihat Saja (Sudah Disetujui)";
+      document.getElementById('downloadBtn').onclick = () => showToast("Pengajuan ini sudah disetujui dan tidak dapat diubah.");
+    }
+  }
+
+  function fillTable(tableId, data) {
+    const table = document.getElementById(tableId);
+    const tbody = table.querySelector('tbody');
+    tbody.innerHTML = '';
+    data.forEach(row => {
+      addRow(tableId);
+      const lastRow = tbody.lastElementChild;
+      const inputs = lastRow.querySelectorAll('input');
+      inputs.forEach(input => {
+        const cls = input.className.trim();
+        const fieldName = cls.split('_').slice(1).join('_') || cls;
+        if (row[fieldName]) input.value = row[fieldName];
+      });
+    });
+  }
 
 function selectFileSlot(id) {
   currentSlot = id;
@@ -1286,11 +1450,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const STEPS = [
-  { label: "Data Asesi" },
+  { label: "Data Profil & Profesi" },
   { label: "Data Asesmen" },
   { label: "Inform Consent" },
   { label: "Umpan Balik" },
-  { label: "Identitas Profesi" },
   { label: "Kelengkapan" },
   { label: "Kirim" },
 ];
@@ -1338,13 +1501,16 @@ function init() {
   buildStepper();
   buildYNList("consentList", CONSENT_QUESTIONS, consentState, "consent");
   buildYNList("umpanList",   UMPAN_QUESTIONS,   umpanState,   "umpan");
-  buildPortoList();
   updateProgress();
+  updateJenjangOptions();
 
   const today = new Date();
   const opts = { day:'2-digit', month:'long', year:'numeric' };
   const tglEl = document.getElementById("tanggal");
   if (tglEl) tglEl.value = today.toLocaleDateString("id-ID", opts);
+  
+  // Fill data if editing
+  setTimeout(fillExistingData, 100);
 }
 
 function buildStepper() {
@@ -1379,6 +1545,67 @@ function goToStep(n) {
   if (n < currentSec) showSection(n);
 }
 
+function toggleSubProfDropdown() {
+  const dropdown = document.getElementById('sub_profesi_dropdown');
+  const trigger = document.getElementById('sub_profesi_trigger');
+  dropdown.classList.toggle('show');
+  trigger.classList.toggle('active');
+  if (dropdown.classList.contains('show')) {
+    document.getElementById('sub_profesi_search').focus();
+  }
+}
+
+function filterSubProfesi(query) {
+  const q = query.toLowerCase();
+  const options = document.querySelectorAll('#sub_profesi_options .option');
+  const groups = document.querySelectorAll('#sub_profesi_options .opt-group');
+  
+  options.forEach(opt => {
+    const text = opt.textContent.toLowerCase();
+    opt.classList.toggle('hidden', !text.includes(q));
+  });
+  
+  groups.forEach(group => {
+    let next = group.nextElementSibling;
+    let hasVisible = false;
+    while (next && next.classList.contains('option')) {
+      if (!next.classList.contains('hidden')) hasVisible = true;
+      next = next.nextElementSibling;
+    }
+    group.style.display = hasVisible ? 'block' : 'none';
+  });
+}
+
+function selectSubProf(val, skipToggle = false) {
+  const input = document.getElementById('sub_profesi');
+  const label = document.getElementById('sub_profesi_label');
+  const manualContainer = document.getElementById('manual_sub_profesi_container');
+  
+  input.value = val;
+  label.textContent = val === 'Lainnya' ? 'Lainnya (Tulis Manual)' : val;
+  
+  // Update UI
+  document.querySelectorAll('#sub_profesi_options .option').forEach(opt => {
+    opt.classList.toggle('selected', opt.textContent === val || (val === 'Lainnya' && opt.textContent.includes('Lainnya')));
+  });
+  
+  // Toggle Manual Input
+  manualContainer.style.display = val === 'Lainnya' ? 'block' : 'none';
+  if (val !== 'Lainnya') document.getElementById('sub_profesi_manual').value = "";
+
+  // Close
+  if (!skipToggle) toggleSubProfDropdown();
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const wrapper = document.querySelector('.custom-select-wrapper');
+  if (wrapper && !wrapper.contains(e.target)) {
+    document.getElementById('sub_profesi_dropdown').classList.remove('show');
+    document.getElementById('sub_profesi_trigger').classList.remove('active');
+  }
+});
+
 function showSection(n) {
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
   document.getElementById(`sec${n}`).classList.add("active");
@@ -1390,31 +1617,60 @@ function showSection(n) {
 
 function nextSection(current) {
   if (!validateSection(current)) return;
-  if (current === 4) syncProfile(); // Sync profile when moving to Step 5
   if (current === STEPS.length - 1) buildReview();
   showSection(current + 1);
 }
 
-function syncProfile() {
-  const ttl = v('ttl');
-  const ttlParts = ttl.split(',');
+function updateJenjangOptions() {
+  const jenisEl = document.getElementById('jenis_profesi');
+  const jenjangEl = document.getElementById('jenjang_profesi');
+  if (!jenisEl || !jenjangEl) return;
   
-  const elNama = document.getElementById('prof_nama');
-  const elTempat = document.getElementById('prof_tempat_lahir');
-  const elTgl = document.getElementById('prof_tgl_lahir');
-  const elJk = document.getElementById('prof_jk');
-  const elAlamat = document.getElementById('prof_alamat_ktp');
-  const elHp = document.getElementById('prof_hp1');
-  const elEmail = document.getElementById('prof_email_aktif');
-
-  if (elNama) elNama.value = v('nama_asesi');
-  if (elTempat) elTempat.value = ttlParts[0]?.trim() || '';
-  if (elTgl) elTgl.value = ttlParts[1]?.trim() || '';
-  if (elJk) elJk.value = document.querySelector('input[name="jk"]:checked')?.value || '';
-  if (elAlamat) elAlamat.value = v('alamat');
-  if (elHp) elHp.value = v('no_hp');
-  if (elEmail) elEmail.value = v('email');
+  const jenis = jenisEl.value;
+  jenjangEl.innerHTML = '<option value="">-- Pilih --</option>';
+  
+  const perawatOptions = ['PRA PK', 'PK I', 'PK II', 'PK III', 'PK IV'];
+  const bidanOptions = ['PRA BP', 'BP I', 'BP II', 'BP III'];
+  
+  if (jenis === 'Perawat') {
+    perawatOptions.forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt; o.textContent = opt;
+      jenjangEl.appendChild(o);
+    });
+  } else if (jenis === 'Bidan') {
+    bidanOptions.forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt; o.textContent = opt;
+      jenjangEl.appendChild(o);
+    });
+  }
+  
+  // Reset visibility of sub-fields
+  handleJenjangChange();
 }
+
+function handleJenjangChange() {
+  const jenisEl = document.getElementById('jenis_profesi');
+  const jenjangEl = document.getElementById('jenjang_profesi');
+  const subContainer = document.getElementById('sub_profesi_container');
+  
+  if (!jenisEl || !jenjangEl || !subContainer) return;
+  
+  const jenis = jenisEl.value;
+  const jenjang = jenjangEl.value;
+  
+  // Show sub-specialization for Perawat (PK II/III) OR all Bidan jenjang
+  if ((jenis === 'Perawat' && (jenjang === 'PK II' || jenjang === 'PK III')) || 
+      (jenis === 'Bidan' && jenjang !== '')) {
+    subContainer.style.display = 'block';
+  } else {
+    subContainer.style.display = 'none';
+    const subProf = document.getElementById('sub_profesi');
+    if (subProf) subProf.value = "";
+  }
+}
+
 
 function addRow(tableId) {
   const tbody = document.getElementById(tableId).querySelector('tbody');
@@ -1462,12 +1718,19 @@ function getTableData(tableId) {
 
   function toggleComp(id) {
     const item = document.getElementById('comp_' + id);
+    if (!item) return;
     const content = item.querySelector('.acc-content');
     const arrow = item.querySelector('.arrow');
-    const isActive = content.style.display === 'block';
     
-    content.style.display = isActive ? 'none' : 'block';
-    arrow.style.transform = isActive ? 'rotate(0deg)' : 'rotate(180deg)';
+    const isHidden = content.style.display === 'none' || content.style.display === '';
+    
+    if (isHidden) {
+      content.style.display = 'block';
+      if (arrow) arrow.style.transform = 'rotate(180deg)';
+    } else {
+      content.style.display = 'none';
+      if (arrow) arrow.style.transform = 'rotate(0deg)';
+    }
   }
 
 function prevSection(current) {
@@ -1477,14 +1740,19 @@ function prevSection(current) {
 function validateSection(sec) {
   let ok = true;
   const required = {
-    1: ["nama_asesi", "ttl", "alamat", "no_hp", "nama_sekolah", "jurusan", "tahun_lulus", "nama_lembaga", "jabatan"],
+    1: [
+      "nama_asesi", "nip", "ktp", "tempat_lahir", "tgl_lahir", "agama", "status_kawin",
+      "alamat", "no_hp", "email", "ijazah", "no_ijazah", "tahun_lulus", "nama_sekolah", "jurusan",
+      "jenis_profesi", "jenjang_profesi", "no_str", "berlaku_str", "masa_kerja", 
+      "status_pegawai", "jabatan", "nama_lembaga"
+    ],
     2: ["nama_asessor", "judul_unit", "tanggal", "waktu", "tempat"],
   };
   
   if (required[sec]) {
     required[sec].forEach(id => {
       const field = document.getElementById(id);
-      if (!field) return; // Skip if field doesn't exist
+      if (!field) return;
       
       const parent = field.closest(".field");
       if (!field.value || !field.value.trim()) {
@@ -1496,7 +1764,24 @@ function validateSection(sec) {
     });
   }
 
-  if (sec === 1) {
+    const jenis = document.getElementById('jenis_profesi').value;
+    const jenjang = document.getElementById('jenjang_profesi').value;
+    if ((jenis === 'Perawat' && (jenjang === 'PK II' || jenjang === 'PK III')) || 
+        (jenis === 'Bidan' && jenjang !== '')) {
+      const sub = document.getElementById('sub_profesi');
+      const subManual = document.getElementById('sub_profesi_manual');
+      
+      let subOk = true;
+      if (!sub.value) subOk = false;
+      if (sub.value === "Lainnya" && !subManual.value.trim()) subOk = false;
+      
+      if (!subOk) {
+        sub.closest(".field").classList.add("has-error");
+        ok = false;
+      } else {
+        sub.closest(".field").classList.remove("has-error");
+      }
+    }
     const jk = document.querySelector('input[name="jk"]:checked');
     if (!jk) { 
       showToast("Pilih jenis kelamin terlebih dahulu", true); 
@@ -1559,27 +1844,23 @@ function setPorto(idx, val) {
 function buildReview() {
   const rows = [
     ["Nama Asesi", v("nama_asesi")],
-    ["Tempat/Tgl Lahir", v("ttl")],
+    ["NIP / NIK", v("nip")],
+    ["No. KTP", v("ktp")],
+    ["Tempat/Tgl Lahir", v("tempat_lahir") + ", " + v("tgl_lahir")],
     ["Jenis Kelamin", document.querySelector('input[name="jk"]:checked')?.value || "-"],
+    ["Agama", v("agama")],
+    ["Status Kawin", v("status_kawin")],
     ["Alamat", v("alamat")],
     ["No. HP", v("no_hp")],
-    ["Pendidikan (Lama)", `${v("nama_sekolah")} – ${v("jurusan")} (${v("strata")}) Lulus ${v("tahun_lulus")}`],
-    ["Pendidikan Profesi", `${v("prof_institusi")} – ${v("prof_ijazah_terakhir")} (${v("prof_tahun_ijazah")})`],
-    ["Lembaga/Jabatan", `${v("nama_lembaga")} – ${v("jabatan")}`],
-    ["Jenis/Jenjang Profesi", `${v("prof_jenis")} / ${v("prof_jenjang")}`],
-    ["KTA / NIRA", `${v("prof_no_kta")} (Berlaku: ${v("prof_berlaku_kta")})`],
-    ["STR", `${v("prof_no_str")} (Berlaku: ${v("prof_berlaku_str")})`],
-    ["SIKP / SIKB", `${v("prof_no_sikp")} (Berlaku: ${v("prof_berlaku_sikp")})`],
-    ["SPK", `${v("prof_no_spk")} (Berlaku: ${v("prof_berlaku_spk")})`],
+    ["Pendidikan", `${v("ijazah")} (${v("no_ijazah")}) – ${v("nama_sekolah")} Lulus ${v("tahun_lulus")}`],
+    ["Profesi", `${v("jenis_profesi")} – ${v("jenjang_profesi")} ${v("sub_profesi") ? '(' + (v("sub_profesi") === "Lainnya" ? v("sub_profesi_manual") : v("sub_profesi")) + ')' : ''}`],
+    ["STR", `${v("no_str")} (Berlaku: ${v("berlaku_str")})`],
+    ["Jabatan", `${v("jabatan")} (${v("nama_lembaga")})`],
+    ["Masa Kerja", v("masa_kerja") + " Tahun"],
     ["Nama Asesor", v("nama_asessor")],
-    ["No. Reg Asesor", v("no_reg_asesor") || "-"],
-    ["Kode Unit", v("kode_unit") || "-"],
     ["Judul Unit", v("judul_unit")],
     ["Tanggal Asesmen", v("tanggal")],
     ["Waktu / Tempat", `${v("waktu")} / ${v("tempat")}`],
-    ["Unit Kerja / Masa Kerja", `${v("prof_unit_kerja")} / ${v("prof_masa_kerja")} Tahun`],
-    ["Pelatihan Utama", v("prof_pelatihan")],
-    ["Riwayat IKI", v("prof_riwayat_iki")],
   ];
   const table = document.getElementById("reviewTable");
   table.innerHTML = rows.map(([k, val]) => `<tr><td>${k}</td><td>${val}</td></tr>`).join("");
@@ -1587,30 +1868,35 @@ function buildReview() {
 
 async function submitApplication() {
   const btn = document.getElementById("downloadBtn");
+  if (IS_APPROVED) return;
   btn.disabled = true;
   btn.classList.add("loading");
 
   try {
     const fd = new FormData();
+    if (EXISTING_ID) fd.append("existing_id", EXISTING_ID);
 
-    // Step 1: Identitas
-    fd.append("nama_asesi", v("nama_asesi"));
-    fd.append("ttl", v("ttl"));
+    // Data Profil & Profesi
+    const fields = [
+      "nama_asesi", "nip", "ktp", "tempat_lahir", "tgl_lahir", "kebangsaan", 
+      "alamat", "kode_pos", "telp_rumah", "no_hp", "no_hp2", "email",
+      "ijazah", "no_ijazah", "tahun_lulus", "nama_sekolah", "jurusan", "strata",
+      "jenis_profesi", "jenjang_profesi", "sub_profesi", "no_str", "berlaku_str", 
+      "masa_kerja", "status_pegawai", "jabatan", "nama_lembaga", "alamat_kantor"
+    ];
+    
+    fields.forEach(f => {
+      if (f === "sub_profesi") {
+        let val = v("sub_profesi");
+        if (val === "Lainnya") val = v("sub_profesi_manual");
+        fd.append(f, val);
+      } else {
+        fd.append(f, v(f));
+      }
+    });
     fd.append("jenis_kelamin", document.querySelector('input[name="jk"]:checked')?.value || "");
-    fd.append("kebangsaan", v("kebangsaan"));
-    fd.append("alamat", v("alamat"));
-    fd.append("kode_pos", v("kode_pos"));
-    fd.append("no_hp", v("no_hp"));
-    fd.append("email", v("email"));
-    fd.append("nama_sekolah", v("nama_sekolah"));
-    fd.append("jurusan", v("jurusan"));
-    fd.append("strata", v("strata"));
-    fd.append("tahun_lulus", v("tahun_lulus"));
-    fd.append("nama_lembaga", v("nama_lembaga"));
-    fd.append("jabatan", v("jabatan"));
-    fd.append("alamat_kantor", v("alamat_kantor"));
-    fd.append("no_telp_kantor", v("no_telp_kantor"));
-    fd.append("email_kantor", v("email_kantor"));
+    fd.append("agama", v("agama"));
+    fd.append("status_kawin", v("status_kawin"));
 
     // Step 2: Asesmen
     fd.append("nama_asessor", v("nama_asessor"));
@@ -1627,11 +1913,8 @@ async function submitApplication() {
     // Consent & Umpan Balik
     fd.append("consent", JSON.stringify(consentState.map(x => x !== false)));
     fd.append("umpan_balik", JSON.stringify(umpanState.map(x => x !== false)));
-    fd.append("portofolio", JSON.stringify(portoState));
-
-    // Step 5: Profesi
-    fd.append("prof_unit_kerja", v("prof_unit_kerja"));
-    fd.append("prof_pendidikan", v("prof_ijazah_terakhir"));
+    
+    // Tables
     fd.append("pelatihan", JSON.stringify(getTableData('tablePelatihan')));
     fd.append("iki", JSON.stringify(getTableData('tableIKI')));
     fd.append("asesmen_history", JSON.stringify(getTableData('tableAsesmen')));

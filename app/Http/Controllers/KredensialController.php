@@ -7,16 +7,26 @@ use App\Models\Kredensial;
 
 class KredensialController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         if (auth()->check()) {
             $role = auth()->user()->role;
             if (in_array($role, ['admin', 'super_admin'])) return redirect()->route('admin.dashboard');
             if ($role === 'asesor') return redirect()->route('asesor.dashboard');
+            
+            // Redirect to dashboard if they have existing submissions and not editing specific one
+            if (!$request->id && auth()->user()->kredensials()->exists()) {
+                return redirect()->route('dashboard');
+            }
+        }
+
+        $existing = null;
+        if ($request->id) {
+            $existing = Kredensial::where('user_id', auth()->id())->find($request->id);
         }
 
         $competencyList = \App\Helpers\CompetencyHelper::getList();
-        return view('index', compact('competencyList'));
+        return view('index', compact('competencyList', 'existing'));
     }
 
     public function dashboard()
@@ -67,17 +77,41 @@ class KredensialController extends Controller
         $data['iki'] = $iki;
         $data['asesmen_history'] = $asesmen_history;
 
-        // Create Kredensial record
-        $kredensial = Kredensial::create([
-            'user_id' => auth()->id(),
-            'nama_asesi' => $request->nama_asesi,
-            'email' => $request->email,
-            'no_hp' => $request->no_hp,
-            'jabatan' => $request->jabatan,
-            'tanggal' => $request->tanggal,
-            'data_lengkap' => $data,
-            'status' => 'Submitted'
-        ]);
+        // Process STR Expiry for warning system
+        $strExpiry = null;
+        if (!empty($data['berlaku_str'])) {
+            $strStr = strtolower(trim($data['berlaku_str']));
+            if (str_contains($strStr, 'seumur hidup')) {
+                $strExpiry = '9999-12-31';
+            } else {
+                // Try to parse dd/mm/yyyy
+                try {
+                    $date = \Carbon\Carbon::createFromFormat('d/m/Y', $data['berlaku_str']);
+                    $strExpiry = $date->format('Y-m-d');
+                } catch (\Exception $e) {
+                    // Fallback or leave null if format is wrong
+                    $strExpiry = null;
+                }
+            }
+        }
+
+        // Update or Create Kredensial record
+        $kredensial = Kredensial::updateOrCreate(
+            [
+                'id' => $request->existing_id,
+                'user_id' => auth()->id()
+            ],
+            [
+                'nama_asesi' => $request->nama_asesi,
+                'email' => $request->email,
+                'no_hp' => $request->no_hp,
+                'jabatan' => $request->jabatan,
+                'tanggal' => $request->tanggal,
+                'str_expiry' => $strExpiry,
+                'data_lengkap' => $data,
+                'status' => 'Submitted'
+            ]
+        );
 
         // Handle File Uploads
         $filePaths = [];

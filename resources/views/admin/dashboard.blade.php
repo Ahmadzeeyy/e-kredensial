@@ -30,9 +30,9 @@
         </div>
     </div>
 
-    <!-- CHARTS & LOGS -->
-    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; margin-bottom: 3rem;">
-        <!-- Chart Card -->
+    <!-- CHARTS ROW 1 -->
+    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Status Chart -->
         <div class="card" style="padding: 1.5rem; background: white; border-radius: 16px; border: 1px solid #e2e8f0;">
             <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem;">Distribusi Status</h2>
             <div style="height: 300px; display: flex; align-items: center; justify-content: center;">
@@ -61,7 +61,75 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 3rem;">
+    <!-- CHARTS ROW 2 -->
+    <!-- ROW 2: 3-COL CHARTS (Compact) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Distribusi Pendidikan -->
+        <div class="card" style="padding: 1.25rem; background: white; border-radius: 16px; border: 1px solid #e2e8f0;">
+            <h2 style="font-size: 0.875rem; font-weight: 700; margin-bottom: 1rem; color: #475569;">Distribusi Pendidikan</h2>
+            <div style="height: 220px;">
+                <canvas id="pendidikanChart"></canvas>
+            </div>
+        </div>
+        <!-- Perbandingan Profesi -->
+        <div class="card" style="padding: 1.25rem; background: white; border-radius: 16px; border: 1px solid #e2e8f0;">
+            <h2 style="font-size: 0.875rem; font-weight: 700; margin-bottom: 1rem; color: #475569;">Perbandingan Profesi</h2>
+            <div style="height: 220px;">
+                <canvas id="profesiChart"></canvas>
+            </div>
+        </div>
+        <!-- Status Perkawinan -->
+        <div class="card" style="padding: 1.25rem; background: white; border-radius: 16px; border: 1px solid #e2e8f0;">
+            <h2 style="font-size: 0.875rem; font-weight: 700; margin-bottom: 1rem; color: #475569;">Status Perkawinan</h2>
+            <div style="height: 220px;">
+                <canvas id="nikahChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 3: Unit Kerja & STR Alert -->
+    <div style="display: grid; grid-template-columns: 2fr 1.2fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card" style="padding: 1.5rem; background: white; border-radius: 16px; border: 1px solid #e2e8f0;">
+            <h2 style="font-size: 0.875rem; font-weight: 700; margin-bottom: 1rem; color: #475569;">Distribusi Unit Kerja / Sub Spesialisasi</h2>
+            <div style="height: 250px;">
+                <canvas id="unitChart"></canvas>
+            </div>
+        </div>
+
+        <!-- STR WARNINGS -->
+        <div class="card" style="background: white; border-radius: 16px; border: 1px solid #e2e8f0; border-left: 5px solid #ef4444; position: relative; overflow: hidden;">
+            <div style="padding: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                    <div style="background: #fef2f2; color: #ef4444; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">⚠️</div>
+                    <h2 style="font-size: 1rem; font-weight: 700; color: #991b1b;">Peringatan STR</h2>
+                </div>
+                
+                <div style="max-height: 200px; overflow-y: auto;">
+                    @php
+                        $expired = \App\Models\Kredensial::whereNotNull('str_expiry')
+                            ->where('str_expiry', '<', now()->addMonths(3))
+                            ->where('str_expiry', '>', '1900-01-01') // Ignore seumur hidup placeholder
+                            ->get();
+                    @endphp
+
+                    @if($expired->isEmpty())
+                        <p style="color: #64748b; font-size: 13px;">Semua STR asesi masih berlaku aman.</p>
+                    @else
+                        @foreach($expired as $ex)
+                        <div style="background: #fff5f5; border-radius: 10px; padding: 10px; margin-bottom: 8px; border: 1px solid #fee2e2;">
+                            <div style="font-size: 13px; font-weight: 700; color: #b91c1c;">{{ $ex->nama_asesi }}</div>
+                            <div style="font-size: 11px; color: #ef4444; margin-top: 2px;">
+                                Expired: <strong>{{ \Carbon\Carbon::parse($ex->str_expiry)->format('d/m/Y') }}</strong>
+                            </div>
+                        </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 3rem;">
         <!-- LATEST SUBMISSIONS -->
         <div class="card" style="background: white; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden;">
             <div style="padding: 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
@@ -84,33 +152,13 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- STR WARNING -->
-        <div class="card" style="padding: 1.5rem; background: #fff; border-radius: 16px; border: 1px solid #ef444433; border-left: 4px solid #ef4444;">
-            <h2 style="font-size: 1rem; font-weight: 700; color: #b91c1c; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                Peringatan STR
-            </h2>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                @php
-                    $expired = \App\Models\Kredensial::whereNotNull('str_expiry')->where('str_expiry', '<', now()->addMonths(3))->get();
-                @endphp
-                @forelse($expired as $ex)
-                <div style="background: #fef2f2; padding: 10px; border-radius: 10px;">
-                    <div style="font-size: 12px; font-weight: 700; color: #991b1b;">{{ $ex->nama_asesi }}</div>
-                    <div style="font-size: 10px; color: #dc2626;">STR Exp: {{ \Carbon\Carbon::parse($ex->str_expiry)->format('d/m/Y') }}</div>
-                </div>
-                @empty
-                <p style="font-size: 12px; color: #64748b;">Semua STR asesi masih berlaku aman.</p>
-                @endforelse
-            </div>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctx = document.getElementById('statusChart').getContext('2d');
-        new Chart(ctx, {
+        // Status Chart (Doughnut)
+        const ctxStatus = document.getElementById('statusChart').getContext('2d');
+        new Chart(ctxStatus, {
             type: 'doughnut',
             data: {
                 labels: ['Selesai', 'Proses', 'Revisi', 'Baru'],
@@ -129,10 +177,115 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
-                },
+                plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } },
+                cutout: '75%'
+            }
+        });
+
+        // Profesi Chart (Bar)
+        const ctxProfesi = document.getElementById('profesiChart').getContext('2d');
+        new Chart(ctxProfesi, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode(array_keys($stats['profesi_chart'])) !!},
+                datasets: [{
+                    label: 'Jumlah Personel',
+                    data: {!! json_encode(array_values($stats['profesi_chart'])) !!},
+                    backgroundColor: ['#6366f1', '#ec4899'],
+                    borderRadius: 8,
+                    barThickness: 40
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { display: false },
+                        ticks: { stepSize: 1, precision: 0 }
+                    }, 
+                    x: { grid: { display: false } } 
+                }
+            }
+        });
+
+        // Unit Chart (Horizontal Bar)
+        const ctxUnit = document.getElementById('unitChart').getContext('2d');
+        new Chart(ctxUnit, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode(array_keys($stats['unit_chart'])) !!},
+                datasets: [{
+                    label: 'Jumlah Asesi',
+                    data: {!! json_encode(array_values($stats['unit_chart'])) !!},
+                    backgroundColor: '#10b981',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    x: { 
+                        beginAtZero: true, 
+                        grid: { display: false },
+                        ticks: { stepSize: 1, precision: 0 }
+                    }, 
+                    y: { grid: { display: false } } 
+                }
+            }
+        });
+
+        // Pendidikan Chart (Doughnut)
+        const ctxPendidikan = document.getElementById('pendidikanChart').getContext('2d');
+        new Chart(ctxPendidikan, {
+            type: 'doughnut',
+            data: {
+                labels: {!! json_encode(array_keys($stats['pendidikan_chart'])) !!},
+                datasets: [{
+                    data: {!! json_encode(array_values($stats['pendidikan_chart'])) !!},
+                    backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } } },
                 cutout: '70%'
+            }
+        });
+
+        // Nikah Chart (Bar)
+        const ctxNikah = document.getElementById('nikahChart').getContext('2d');
+        new Chart(ctxNikah, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode(array_keys($stats['nikah_chart'])) !!},
+                datasets: [{
+                    label: 'Jumlah',
+                    data: {!! json_encode(array_values($stats['nikah_chart'])) !!},
+                    backgroundColor: '#8b5cf6',
+                    borderRadius: 8,
+                    barThickness: 50
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { display: false },
+                        ticks: { stepSize: 1, precision: 0 }
+                    },
+                    x: { grid: { display: false } }
+                }
             }
         });
     </script>

@@ -135,7 +135,7 @@
                                                     <div style="font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.05em;">PENILAIAN</div>
                                                     <label style="display: flex; align-items: center; gap: 10px; background: #eef2ff; padding: 0 14px; border-radius: 6px; border: 1px solid #e0e7ff; height: 38px; cursor: pointer;">
                                                         <input type="checkbox" name="ases[kompetensi][{{ $subKey }}]" value="1" {{ isset($saved[$subKey]) ? 'checked' : '' }} style="width: 16px; height: 16px; cursor: pointer; accent-color: #4f46e5;">
-                                                        <span style="font-size: 12px; font-weight: 700; color: #4338ca; user-select: none;">Kompeten (V)</span>
+                                                        <span style="font-size: 12px; font-weight: 700; color: #4338ca; user-select: none;">Sesuai (V)</span>
                                                     </label>
                                                 </div>
                                             </div>
@@ -166,7 +166,7 @@
                                                 <div style="font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 0.05em;">PENILAIAN</div>
                                                 <label style="display: flex; align-items: center; gap: 10px; background: #eef2ff; padding: 0 14px; border-radius: 6px; border: 1px solid #e0e7ff; height: 38px; cursor: pointer;">
                                                     <input type="checkbox" name="ases[kompetensi][{{ $key }}]" value="1" {{ isset($saved[$key]) ? 'checked' : '' }} style="width: 16px; height: 16px; cursor: pointer; accent-color: #4f46e5;">
-                                                    <span style="font-size: 12px; font-weight: 700; color: #4338ca; user-select: none;">Kompeten (V)</span>
+                                                    <span style="font-size: 12px; font-weight: 700; color: #4338ca; user-select: none;">Sesuai (V)</span>
                                                 </label>
                                             </div>
                                         </div>

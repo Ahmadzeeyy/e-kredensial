@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Kredensial RSUD</title>
+    <title>Admin Dashboard - E-ASKOMKRE</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <style>
@@ -178,7 +178,7 @@
             <div class="brand-logo">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
             </div>
-            <span class="brand-name">RSUD Kredensial</span>
+            <span class="brand-name">E-ASKOMKRE</span>
         </a>
 
         <nav style="flex: 1; display: flex; flex-direction: column;">
@@ -222,7 +222,7 @@
                     </div>
                     <div class="user-info">
                         <div class="user-name">{{ auth()->user()->name }}</div>
-                        <div class="user-role">{{ auth()->user()->role }}</div>
+                        <div class="user-role">{{ auth()->user()->role === 'user' ? 'ASESI' : strtoupper(auth()->user()->role) }}</div>
                     </div>
                 </div>
                 

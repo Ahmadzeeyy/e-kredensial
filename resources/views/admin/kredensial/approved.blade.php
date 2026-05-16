@@ -39,6 +39,7 @@
                     <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
                         <td style="padding: 16px 20px; text-align: left;">
                             <div style="font-weight: 700; color: #1e293b; font-size: 14px;">{{ $k->nama_asesi }}</div>
+                            <div style="font-size: 11px; font-weight: 600; color: #4F46E5; margin-top: 2px; text-transform: uppercase;">{{ $k->data_lengkap['jenis_profesi'] ?? '-' }}</div>
                             <div style="font-size: 12px; color: #64748b; margin-top: 2px;">{{ $k->jabatan }}</div>
                         </td>
                         <td style="padding: 16px 20px; text-align: center;">

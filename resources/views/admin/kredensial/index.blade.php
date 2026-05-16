@@ -33,12 +33,13 @@
                     <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
                         <td style="padding: 16px 20px; text-align: left;">
                             <div style="font-weight: 700; color: #1e293b; font-size: 14px;">{{ $k->nama_asesi }}</div>
-                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ $k->created_at->format('d/m/Y H:i') }}</div>
+                            <div style="font-size: 11px; font-weight: 600; color: #4F46E5; margin-top: 2px; text-transform: uppercase;">{{ $k->data_lengkap['jenis_profesi'] ?? '-' }}</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 1px;">{{ $k->created_at->format('d/m/Y H:i') }}</div>
                         </td>
                         <td style="padding: 16px 20px; text-align: left;">
-                            <form action="{{ route('admin.update-status', $k->id) }}" method="POST" style="display: inline-block;">
+                            <form action="{{ route('admin.update-status', $k->id) }}" method="POST" id="statusForm{{ $k->id }}" style="display: inline-block;">
                                 @csrf
-                                <select name="status" onchange="this.form.submit()" style="padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1px solid #e2e8f0; background: {{ $k->status_label['bg'] }}; color: {{ $k->status_label['color'] }}; cursor: pointer; appearance: none; display: inline-block;">
+                                <select name="status" onchange="handleStatusChange(this, {{ $k->id }})" style="padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1px solid #e2e8f0; background: {{ $k->status_label['bg'] }}; color: {{ $k->status_label['color'] }}; cursor: pointer; appearance: none; display: inline-block;">
                                     <option value="Submitted" {{ $k->status == 'Submitted' ? 'selected' : '' }}>Menunggu Review</option>
                                     <option value="Under Review" {{ $k->status == 'Under Review' ? 'selected' : '' }}>Sedang Dicek</option>
                                     <option value="Needs Revision" {{ $k->status == 'Needs Revision' ? 'selected' : '' }}>Perlu Revisi</option>
@@ -84,6 +85,14 @@
                                     </button>
                                 </form>
                                 @endif
+
+                                <form action="{{ route('admin.kredensial.destroy', $k->id) }}" method="POST" style="width: 100%;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="width: 100%; padding: 8px 12px; background: white; color: #ef4444; border: 1px solid #fee2e2; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'" onclick="return confirm('Hapus seluruh data pengajuan milik {{ $k->nama_asesi }}? Tindakan ini tidak bisa dibatalkan.')">
+                                        🗑️ Hapus Pengajuan
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -138,6 +147,25 @@
     </div>
 </div>
 
+<!-- REVISION MODAL -->
+<div id="modalRevision" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 3000; padding: 2rem;">
+    <div style="background: white; border-radius: 20px; width: 100%; max-width: 500px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+        <div style="padding: 1.5rem; background: #fef2f2; border-bottom: 1px solid #fee2e2; display: flex; align-items: center; gap: 12px;">
+            <div style="background: #ef4444; color: white; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">✍️</div>
+            <h2 style="font-size: 1.125rem; font-weight: 700; color: #991b1b;">Catatan Revisi</h2>
+        </div>
+        <div style="padding: 1.5rem;">
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 1rem;">Berikan instruksi spesifik bagian mana yang harus diperbaiki oleh asesi.</p>
+            <textarea id="revisionNotes" style="width: 100%; height: 120px; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; outline: none; font-size: 14px; transition: border-color 0.2s;" placeholder="Contoh: File STR tidak terbaca, mohon upload ulang dengan kualitas lebih baik."></textarea>
+            <input type="hidden" id="revisionId">
+        </div>
+        <div style="padding: 1rem 1.5rem; background: #f8fafc; display: flex; justify-content: flex-end; gap: 10px;">
+            <button onclick="closeRevisionModal()" style="padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; font-size: 13px; font-weight: 600; cursor: pointer;">Batal</button>
+            <button onclick="submitRevision()" style="padding: 8px 20px; border-radius: 8px; background: #ef4444; color: white; border: none; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#dc2626'">Kirim Revisi</button>
+        </div>
+    </div>
+</div>
+
 <script>
 function openPreview(id, name) {
     const modal = document.getElementById('modalPreview');
@@ -154,13 +182,13 @@ function openPreview(id, name) {
 
     // List of possible file types (same as in index.blade.php form)
     const fileTypes = {
-        'pas_foto': 'Pas Foto',
-        'ktp': 'KTP',
-        'ijazah': 'Ijazah',
-        'str': 'STR',
-        'sip': 'SIP',
-        'sertifikat_pelatihan': 'Sertifikat Pelatihan',
-        'sk_penempatan': 'SK Penempatan'
+        'file_ijazah': 'Ijazah Terakhir',
+        'file_transkrip': 'Transkrip Nilai',
+        'file_str': 'STR (Surat Tanda Registrasi)',
+        'file_praktik': 'SIP / SIKP / SIKB',
+        'file_sertifikat': 'Sertifikat Kompetensi',
+        'file_logbook': 'Log Book',
+        'file_form': 'Formulir (Ber-ttd)'
     };
 
     let buttonsHtml = '';
@@ -202,6 +230,51 @@ function loadFile(id, type) {
 function closePreview() {
     document.getElementById('modalPreview').style.display = 'none';
     document.getElementById('previewIframe').src = '';
+}
+
+function handleStatusChange(select, id) {
+    if (select.value === 'Needs Revision') {
+        document.getElementById('revisionId').value = id;
+        document.getElementById('revisionNotes').value = '';
+        document.getElementById('modalRevision').style.display = 'flex';
+        document.getElementById('revisionNotes').focus();
+    } else {
+        select.form.submit();
+    }
+}
+
+function closeRevisionModal() {
+    document.getElementById('modalRevision').style.display = 'none';
+    location.reload();
+}
+
+function submitRevision() {
+    const id = document.getElementById('revisionId').value;
+    const notes = document.getElementById('revisionNotes').value;
+    
+    if (!notes.trim()) {
+        alert("Catatan revisi tidak boleh kosong!");
+        return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/admin/kredensial/${id}/revise`;
+    
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = '_token';
+    csrf.value = '{{ csrf_token() }}';
+    form.appendChild(csrf);
+    
+    const noteInput = document.createElement('input');
+    noteInput.type = 'hidden';
+    noteInput.name = 'notes';
+    noteInput.value = notes;
+    form.appendChild(noteInput);
+    
+    document.body.appendChild(form);
+    form.submit();
 }
 </script>
 @endsection
