@@ -14,8 +14,8 @@ class KredensialController extends Controller
             if (in_array($role, ['admin', 'super_admin'])) return redirect()->route('admin.dashboard');
             if ($role === 'asesor') return redirect()->route('asesor.dashboard');
             
-            // Redirect to dashboard if they have existing submissions and not editing specific one
-            if (!$request->id && auth()->user()->kredensials()->exists()) {
+            // Redirect to dashboard if they have existing submissions and not explicitly creating new or editing
+            if (!$request->id && !$request->new && auth()->user()->kredensials()->exists()) {
                 return redirect()->route('dashboard');
             }
         }
