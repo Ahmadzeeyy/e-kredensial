@@ -181,7 +181,7 @@
         <p>Pantau kemajuan berkas kredensial Anda atau buat pengajuan baru untuk meningkatkan jenjang kompetensi profesi Anda.</p>
       </div>
       
-      <a href="{{ route('form') }}" class="cta-button">
+      <a href="{{ route('form', ['new' => 1]) }}" class="cta-button">
         <div class="cta-icon">＋</div>
         <div class="cta-text">
           <b>Buat Pengajuan</b>
